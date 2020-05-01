@@ -8,8 +8,9 @@ import (
 var Τimeout *time.Ticker
 
 type MlabCache struct {
-	Cache map[string]map[string]float64
-	Mux   sync.Mutex
+	Cache   map[string]map[string]float64
+	Mux     sync.Mutex
+	Timeout *time.Ticker
 }
 
 var LabCache MlabCache = MlabCache{
@@ -63,6 +64,7 @@ var LabCache MlabCache = MlabCache{
 			"c6res":     -1,
 		},
 	},
+	Timeout: time.NewTicker(time.Duration(10 * time.Second)),
 }
 
 func (c *MlabCache) CleanCache() {
@@ -117,6 +119,7 @@ func (c *MlabCache) CleanCache() {
 			"c6res":     -1,
 		},
 	}
+	//Timeout := time.NewTicker(time.Duration(10 * time.Second))
 	c.Mux.Unlock()
 }
 
