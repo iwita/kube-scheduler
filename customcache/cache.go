@@ -125,7 +125,7 @@ func (c *MlabCache) UpdateCache(input map[string]float64, c6res float64, nodenam
 		"ipc":       input["ipc"],
 		"mem_read":  input["mem_read"],
 		"mem_write": input["mem_write"],
-		"c6res":     input["c6res"],
+		"c6res":     c6res,
 	}
 	c.Mux.Unlock()
 
