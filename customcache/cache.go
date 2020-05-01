@@ -2,9 +2,10 @@ package customcache
 
 import (
 	"sync"
+	"time"
 )
 
-//var timeout *time.Ticker = time.NewTicker(time.Duration(10 * time.Second))
+var Τimeout *time.Ticker
 
 type MlabCache struct {
 	Cache map[string]map[string]float64
