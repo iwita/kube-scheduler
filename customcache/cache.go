@@ -2,6 +2,8 @@ package customcache
 
 import (
 	"sync"
+
+	"k8s.io/klog"
 )
 
 //var timeout *time.Ticker = time.NewTicker(time.Duration(10 * time.Second))
@@ -129,6 +131,8 @@ func (c *MlabCache) UpdateCache(input map[string]float64, c6res float64, nodenam
 	}
 	c.Mux.Unlock()
 
+	klog.Infof("After cache update")
+	c.printCached(nodename)
 	return nil
 }
 
@@ -139,8 +143,18 @@ func (c *MlabCache) AddAppMetrics(app map[string]float64, nodename string, numCo
 	//TODO
 	// handle c6res addition
 	c.Cache[nodename]["c6res"] -= (1 - app["c6res"]) / float64(100*numCores)
+	if c.Cache[nodename]["c6res"] <= 0 {
+		c.Cache[nodename]["c6res"] = 0.00000001
+	}
 
 	//TODO
 	// handle ipc addition
 	c.Mux.Unlock()
+	klog.Infof("After application metrics addition")
+	c.printCached(nodename)
+}
+
+func (c *MlabCache) printCached(nodename string) {
+	klog.Infof("IPC: %v, Reads: %v,  Writes: %v, C6res: %v", c.Cache[nodename]["ipc"], c.Cache[nodename]["mem_read"],
+		c.Cache[nodename]["mem_write"], c.Cache[nodename]["c6res"])
 }
