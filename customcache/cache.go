@@ -124,7 +124,7 @@ func (c *MlabCache) CleanCache() {
 			"c6res":     -1,
 		},
 	}
-	c.Timeout.Stop()
+	//c.Timeout.Stop()
 	//Timeout := time.NewTicker(time.Duration(10 * time.Second))
 	c.Mux.Unlock()
 }
