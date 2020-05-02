@@ -66,7 +66,7 @@ func init() {
 				"c6res":     -1,
 			},
 		},
-		//Timeout: time.NewTicker(time.Duration(10 * time.Second)),
+		Timeout: time.NewTicker(time.Duration(10 * time.Second)),
 	}
 }
 
