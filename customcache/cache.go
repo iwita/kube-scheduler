@@ -5,7 +5,7 @@ import (
 	"time"
 )
 
-var LabCache MlabCache
+var LabCache *MlabCache
 var duration int = 10
 
 type MlabCache struct {
@@ -15,7 +15,7 @@ type MlabCache struct {
 }
 
 func init() {
-	LabCache = MlabCache{
+	LabCache = &MlabCache{
 		Cache: map[string]map[string]float64{
 			"kube-01": map[string]float64{
 				"ipc":       -1,
