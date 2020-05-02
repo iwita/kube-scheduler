@@ -6,6 +6,7 @@ import (
 )
 
 var LabCache MlabCache
+var duration int
 
 type MlabCache struct {
 	Cache   map[string]map[string]float64
@@ -65,7 +66,7 @@ func init() {
 				"c6res":     -1,
 			},
 		},
-		Timeout: time.NewTicker(time.Duration(10 * time.Second)),
+		//Timeout: time.NewTicker(time.Duration(10 * time.Second)),
 	}
 }
 
@@ -135,6 +136,9 @@ func (c *MlabCache) UpdateCache(input map[string]float64, c6res float64, nodenam
 		"mem_write": input["mem_write"],
 		"c6res":     c6res,
 	}
+
+	// Reset the ticker
+	c.Timeout = time.NewTicker(time.Duration(duration) * time.Second)
 	c.Mux.Unlock()
 
 	//klog.Infof("After cache update")
