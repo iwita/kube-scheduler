@@ -5,7 +5,7 @@ import (
 	"time"
 )
 
-var Τimeout *time.Ticker
+var LabCache MlabCache
 
 type MlabCache struct {
 	Cache   map[string]map[string]float64
@@ -13,59 +13,63 @@ type MlabCache struct {
 	Timeout *time.Ticker
 }
 
-var LabCache MlabCache = MlabCache{
-	Cache: map[string]map[string]float64{
-		"kube-01": map[string]float64{
-			"ipc":       -1,
-			"mem_read":  -1,
-			"mem_write": -1,
-			"c6res":     -1,
+func init() {
+	LabCache = MlabCache{
+		Cache: map[string]map[string]float64{
+			"kube-01": map[string]float64{
+				"ipc":       -1,
+				"mem_read":  -1,
+				"mem_write": -1,
+				"c6res":     -1,
+			},
+			"kube-02": map[string]float64{
+				"ipc":       -1,
+				"mem_read":  -1,
+				"mem_write": -1,
+				"c6res":     -1,
+			},
+			"kube-03": map[string]float64{
+				"ipc":       -1,
+				"mem_read":  -1,
+				"mem_write": -1,
+				"c6res":     -1,
+			},
+			"kube-04": map[string]float64{
+				"ipc":       -1,
+				"mem_read":  -1,
+				"mem_write": -1,
+				"c6res":     -1,
+			},
+			"kube-05": map[string]float64{
+				"ipc":       -1,
+				"mem_read":  -1,
+				"mem_write": -1,
+				"c6res":     -1,
+			},
+			"kube-06": map[string]float64{
+				"ipc":       -1,
+				"mem_read":  -1,
+				"mem_write": -1,
+				"c6res":     -1,
+			},
+			"kube-07": map[string]float64{
+				"ipc":       -1,
+				"mem_read":  -1,
+				"mem_write": -1,
+				"c6res":     -1,
+			},
+			"kube-08": map[string]float64{
+				"ipc":       -1,
+				"mem_read":  -1,
+				"mem_write": -1,
+				"c6res":     -1,
+			},
 		},
-		"kube-02": map[string]float64{
-			"ipc":       -1,
-			"mem_read":  -1,
-			"mem_write": -1,
-			"c6res":     -1,
-		},
-		"kube-03": map[string]float64{
-			"ipc":       -1,
-			"mem_read":  -1,
-			"mem_write": -1,
-			"c6res":     -1,
-		},
-		"kube-04": map[string]float64{
-			"ipc":       -1,
-			"mem_read":  -1,
-			"mem_write": -1,
-			"c6res":     -1,
-		},
-		"kube-05": map[string]float64{
-			"ipc":       -1,
-			"mem_read":  -1,
-			"mem_write": -1,
-			"c6res":     -1,
-		},
-		"kube-06": map[string]float64{
-			"ipc":       -1,
-			"mem_read":  -1,
-			"mem_write": -1,
-			"c6res":     -1,
-		},
-		"kube-07": map[string]float64{
-			"ipc":       -1,
-			"mem_read":  -1,
-			"mem_write": -1,
-			"c6res":     -1,
-		},
-		"kube-08": map[string]float64{
-			"ipc":       -1,
-			"mem_read":  -1,
-			"mem_write": -1,
-			"c6res":     -1,
-		},
-	},
-	Timeout: time.NewTicker(time.Duration(10 * time.Second)),
+		Timeout: time.NewTicker(time.Duration(10 * time.Second)),
+	}
 }
+
+// var Τimeout *time.Ticker
 
 func (c *MlabCache) CleanCache() {
 	c.Mux.Lock()
