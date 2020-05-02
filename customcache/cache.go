@@ -141,12 +141,11 @@ func (c *MlabCache) CleanCache() {
 
 func (c *MlabCache) UpdateCache(input map[string]float64, c6res float64, nodename string) error {
 	c.Mux.Lock()
-	c.Cache[nodename] = map[string]float64{
-		"ipc":       input["ipc"],
-		"mem_read":  input["mem_read"],
-		"mem_write": input["mem_write"],
-		"c6res":     c6res,
-	}
+
+	c.Cache[nodename]["ipc"] = input["ipc"]
+	c.Cache[nodename]["mem_read"] = input["mem_read"]
+	c.Cache[nodename]["mem_write"] = input["mem_write"]
+	c.Cache[nodename]["c6res"] = c6res
 
 	// Reset the ticker
 	c.Timeout = time.NewTicker(time.Duration(duration) * time.Second)
