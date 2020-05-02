@@ -6,7 +6,7 @@ import (
 )
 
 var LabCache MlabCache
-var duration int
+var duration int = 10
 
 type MlabCache struct {
 	Cache   map[string]map[string]float64
@@ -66,7 +66,7 @@ func init() {
 				"c6res":     -1,
 			},
 		},
-		Timeout: time.NewTicker(time.Duration(10 * time.Second)),
+		Timeout: time.NewTicker(time.Duration(10) * time.Second),
 	}
 }
 
