@@ -78,56 +78,62 @@ func init() {
 
 func (c *MlabCache) CleanCache() {
 	c.Mux.Lock()
-	c.Cache = map[string]map[string]float64{
-		"kube-01": map[string]float64{
-			"ipc":       -1,
-			"mem_read":  -1,
-			"mem_write": -1,
-			"c6res":     -1,
-		},
-		"kube-02": map[string]float64{
-			"ipc":       -1,
-			"mem_read":  -1,
-			"mem_write": -1,
-			"c6res":     -1,
-		},
-		"kube-03": map[string]float64{
-			"ipc":       -1,
-			"mem_read":  -1,
-			"mem_write": -1,
-			"c6res":     -1,
-		},
-		"kube-04": map[string]float64{
-			"ipc":       -1,
-			"mem_read":  -1,
-			"mem_write": -1,
-			"c6res":     -1,
-		},
-		"kube-05": map[string]float64{
-			"ipc":       -1,
-			"mem_read":  -1,
-			"mem_write": -1,
-			"c6res":     -1,
-		},
-		"kube-06": map[string]float64{
-			"ipc":       -1,
-			"mem_read":  -1,
-			"mem_write": -1,
-			"c6res":     -1,
-		},
-		"kube-07": map[string]float64{
-			"ipc":       -1,
-			"mem_read":  -1,
-			"mem_write": -1,
-			"c6res":     -1,
-		},
-		"kube-08": map[string]float64{
-			"ipc":       -1,
-			"mem_read":  -1,
-			"mem_write": -1,
-			"c6res":     -1,
-		},
+
+	for k, v := range c.Cache {
+		for key, _ := range v {
+			c.Cache[k][key] = -1
+		}
 	}
+	// c.Cache = map[string]map[string]float64{
+	// 	"kube-01": map[string]float64{
+	// 		"ipc":       -1,
+	// 		"mem_read":  -1,
+	// 		"mem_write": -1,
+	// 		"c6res":     -1,
+	// 	},
+	// 	"kube-02": map[string]float64{
+	// 		"ipc":       -1,
+	// 		"mem_read":  -1,
+	// 		"mem_write": -1,
+	// 		"c6res":     -1,
+	// 	},
+	// 	"kube-03": map[string]float64{
+	// 		"ipc":       -1,
+	// 		"mem_read":  -1,
+	// 		"mem_write": -1,
+	// 		"c6res":     -1,
+	// 	},
+	// 	"kube-04": map[string]float64{
+	// 		"ipc":       -1,
+	// 		"mem_read":  -1,
+	// 		"mem_write": -1,
+	// 		"c6res":     -1,
+	// 	},
+	// 	"kube-05": map[string]float64{
+	// 		"ipc":       -1,
+	// 		"mem_read":  -1,
+	// 		"mem_write": -1,
+	// 		"c6res":     -1,
+	// 	},
+	// 	"kube-06": map[string]float64{
+	// 		"ipc":       -1,
+	// 		"mem_read":  -1,
+	// 		"mem_write": -1,
+	// 		"c6res":     -1,
+	// 	},
+	// 	"kube-07": map[string]float64{
+	// 		"ipc":       -1,
+	// 		"mem_read":  -1,
+	// 		"mem_write": -1,
+	// 		"c6res":     -1,
+	// 	},
+	// 	"kube-08": map[string]float64{
+	// 		"ipc":       -1,
+	// 		"mem_read":  -1,
+	// 		"mem_write": -1,
+	// 		"c6res":     -1,
+	// 	},
+	// }
 	//c.Timeout.Stop()
 	//Timeout := time.NewTicker(time.Duration(10 * time.Second))
 	c.Mux.Unlock()
