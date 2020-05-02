@@ -70,6 +70,10 @@ func init() {
 	LabCache.Timeout = time.NewTicker(time.Duration(10) * time.Second)
 }
 
+// func New() {
+
+// }
+
 // var Τimeout *time.Ticker
 
 func (c *MlabCache) CleanCache() {
