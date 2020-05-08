@@ -157,15 +157,17 @@ func (c *MlabCache) UpdateCache(input map[string]float64, c6res float64, nodenam
 	return nil
 }
 
-func (c *MlabCache) AddAppMetrics(app map[string]float64, nodename string, numCores int) {
+func (c *MlabCache) AddAppMetrics(app map[string]float64, nodename string, numCores int, win bool) {
 	c.Mux.Lock()
 	c.Cache[nodename]["mem_read"] += app["mem_read"]
 	c.Cache[nodename]["mem_write"] += app["mem_write"]
 	//TODO
 	// handle c6res addition
-	c.Cache[nodename]["c6res"] -= (1 - app["c6res"]) / float64(100*numCores)
-	if c.Cache[nodename]["c6res"] <= 0 {
-		c.Cache[nodename]["c6res"] = 0.00000001
+	if win {
+		c.Cache[nodename]["c6res"] -= (1 - app["c6res"]) / float64(100*numCores)
+		if c.Cache[nodename]["c6res"] <= 0 {
+			c.Cache[nodename]["c6res"] = 0.00000001
+		}
 	}
 
 	//TODO
