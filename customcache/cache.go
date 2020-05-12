@@ -164,8 +164,8 @@ func (c *MlabCache) AddAppMetrics(app map[string]float64, nodename string, numCo
 	//TODO
 	// handle c6res addition
 	if win {
+		c.Cache[nodename]["c6res"] -= (100 - app["c6res"]) / float64(100*numCores)
 		if c.Cache[nodename]["c6res"] <= 0 {
-			c.Cache[nodename]["c6res"] -= (100 - app["c6res"]) / float64(100*numCores)
 			c.Cache[nodename]["c6res"] = 0.00000001
 		}
 	}
