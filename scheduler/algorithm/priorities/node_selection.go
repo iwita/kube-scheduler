@@ -23,6 +23,7 @@ import (
 
 	_ "github.com/go-sql-driver/mysql"
 	client "github.com/influxdata/influxdb1-client/v2"
+	"github.com/iwita/kube-scheduler/customcache"
 	"k8s.io/klog"
 )
 
@@ -106,13 +107,10 @@ func queryInfluxDbCores(metrics []string, uuid string, socket,
 }
 
 func nodeSelectionScorer(nodeName string) (float64, error) {
-	
-	
-
 	// check the cache
 	cores, _ := Cores[nodeName]
 
-	var results map[string]float64
+	//var results map[string]float64
 	// Check the cache
 	customcache.LabCache.Mux.Lock()
 
@@ -126,8 +124,6 @@ func nodeSelectionScorer(nodeName string) (float64, error) {
 	if c6res != -1 {
 
 		customcache.LabCache.Mux.Unlock()
-
-		klog.Infof("Found in the cache: ipc: %v, reads: %v, writes: %v, c6: %v\n", ipc, reads, writes,socketSum/socketCores)
 		//results["c6res"] = socketSum/socketCores
 		//res := calculateScore(scorerInput{metrics: results}, customScoreFn)
 
@@ -138,7 +134,7 @@ func nodeSelectionScorer(nodeName string) (float64, error) {
 		// res = res * float64(speed) * float64(maxFreq)
 
 		// Select Node
-		klog.Infof("Using the cached values, Node name %s, has score %v\n", nodeName, res)
+		//klog.Infof("Using the cached values, Node name %s, has score %v\n", nodeName, res)
 		return c6res, nil
 	}
 
@@ -164,7 +160,7 @@ func nodeSelectionScorer(nodeName string) (float64, error) {
 	//Get the uuid of this node in order to query in the database
 	curr_uuid, ok := Nodes[nodeName]
 	socket, _ := Sockets[nodeName]
-	cores, _ := Cores[nodeName]
+	//cores, _ := Cores[nodeName]
 	if len(cores) == 0 {
 		return 0.0, nil
 	}

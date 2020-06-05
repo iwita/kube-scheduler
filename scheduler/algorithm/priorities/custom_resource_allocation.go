@@ -23,7 +23,7 @@ import (
 
 	_ "github.com/go-sql-driver/mysql"
 	client "github.com/influxdata/influxdb1-client/v2"
-	"github.com/iwita/kube-scheduler/customcache"
+	customcache "github.com/iwita/kube-scheduler/customcache"
 	"k8s.io/klog"
 )
 
@@ -127,7 +127,7 @@ func customResourceScorer(nodeName string) (float64, error) {
 
 	//InvalidateCache()
 	//klog.Infof("The value of the Ticker: %v", customcache.LabCache.Timeout.C)
-	cores, _ := Cores[nodeName]
+	//cores, _ := Cores[nodeName]
 
 	var results map[string]float64
 	// Check the cache
@@ -145,6 +145,9 @@ func customResourceScorer(nodeName string) (float64, error) {
 		klog.Infof("Memory Writes is nil")
 	}
 
+	socket, _ := Sockets[nodeName]
+	curr_uuid, ok := Nodes[nodeName]
+
 	// If the cache has value use it
 	if ipc != -1 && reads != -1 && writes != -1 {
 		results := map[string]float64{
@@ -160,8 +163,8 @@ func customResourceScorer(nodeName string) (float64, error) {
 				socketNodes = append(socketNodes, kubenode)
 			}
 		}
-		currentNodeC6res := 0
-		socketSum := 0
+		//var float64 currentNodeC6res
+		socketSum := 0.0
 		socketCores := 0
 		sum := 0
 
@@ -170,24 +173,24 @@ func customResourceScorer(nodeName string) (float64, error) {
 			if !ok {
 				klog.Infof("C6 state is nil")
 			}
-			if c6res * len(Cores[snode]) > 1 {
+			if c6res * float64(len(Cores[snode])) > 1 {
 				sum++
 			}
-			socketSum += c6res * len(Cores[snode])
+			socketSum += c6res * float64(len(Cores[snode]))
 			socketCores += len(Cores[snode])
-			if snode == nodeName {
-				currentNodeC6res = c6res
-			}
+			// if snode == nodeName {
+			// 	currentNodeC6res = c6res
+			// }
 		}
 		customcache.LabCache.Mux.Unlock()
 
-		klog.Infof("Found in the cache: ipc: %v, reads: %v, writes: %v, c6: %v\n", ipc, reads, writes,socketSum/socketCores)
-		results["c6res"] = socketSum/socketCores
+		klog.Infof("Found in the cache: ipc: %v, reads: %v, writes: %v, c6: %v\n", ipc, reads, writes,socketSum/float64(socketCores))
+		results["c6res"] = socketSum/float64(socketCores)
 		res := calculateScore(scorerInput{metrics: results}, customScoreFn)
 
 		if sum < 1 {
 			//klog.Infof("Average C6 is less than 1, so we get: %v", average["c6res"])
-			res = res * socketSum/socketCores
+			res = res * socketSum/float64(socketCores)
 		} else {
 			res = res * 1
 		}
@@ -222,8 +225,7 @@ func customResourceScorer(nodeName string) (float64, error) {
 	defer c.Close()
 
 	//Get the uuid of this node in order to query in the database
-	curr_uuid, ok := Nodes[nodeName]
-	socket, _ := Sockets[nodeName]
+	//socket, _ := Sockets[nodeName]
 	// cores, _ := Cores[nodeName]
 	var socketNodes []string
 
@@ -244,8 +246,8 @@ func customResourceScorer(nodeName string) (float64, error) {
 		sum := 0
 		socketSum := 0.0
 		socketCores := 0.0
-		space := 0
-		currentNodeC6res := 0
+		//space := 0
+		currentNodeC6res := 0.0
 
 		for _, snode := range socketNodes {
 			currCores, _ := Cores[snode]
@@ -267,6 +269,7 @@ func customResourceScorer(nodeName string) (float64, error) {
 			}
 			socketSum += average["c6res"] * float64(len(currCores))
 			socketCores += float64(len(currCores))
+			klog.Infof("Inside the for loop")
 		}
 
 		// Select Socket
@@ -276,7 +279,9 @@ func customResourceScorer(nodeName string) (float64, error) {
 			return 0, nil
 		}
 
+		klog.Infof("Node: %v, Calculating score...", nodeName)
 		res := calculateScore(scorerInput{metrics: results}, customScoreFn)
+		klog.Infof("Node: %v, Finished calculating score ", nodeName)
 
 		//klog.Infof("Node: %v\t res before: %v", nodeName, res)
 
@@ -288,7 +293,10 @@ func customResourceScorer(nodeName string) (float64, error) {
 		}
 
 		//Update the cache with the new metrics
+		klog.Infof("Node: %v, Updating the cache ", nodeName)
 		err = customcache.LabCache.UpdateCache(results, currentNodeC6res, nodeName)
+		klog.Infof("Node: %v, Finishing updating the cache.... ", nodeName)
+
 		if err != nil {
 			klog.Infof(err.Error())
 		} else {
