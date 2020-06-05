@@ -337,7 +337,7 @@ func (g *genericScheduler) Schedule(pod *v1.Pod, nodeLister algorithm.NodeLister
 			win = false
 		}
 		klog.Infof("Update Score for Node %v, using App: %v", n, podName)
-		klog.Infof("App metrics: %v", priorities.Applications[podName].Metrics)
+		klog.Infof("App: %v metrics: %v", podName, priorities.Applications[podName].Metrics)
 		numCores := len(priorities.Cores[n])
 		customcache.LabCache.AddAppMetrics(priorities.Applications[podName].Metrics, n, numCores, win)
 	}

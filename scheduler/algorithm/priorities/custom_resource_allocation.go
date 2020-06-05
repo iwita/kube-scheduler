@@ -144,26 +144,50 @@ func customResourceScorer(nodeName string) (float64, error) {
 	if !ok {
 		klog.Infof("Memory Writes is nil")
 	}
-	c6res, ok := customcache.LabCache.Cache[nodeName]["c6res"]
-	if !ok {
-		klog.Infof("C6 state is nil")
-	}
-	customcache.LabCache.Mux.Unlock()
+
 	// If the cache has value use it
-	if ipc != -1 && reads != -1 && writes != -1 && c6res != -1 {
+	if ipc != -1 && reads != -1 && writes != -1 {
 		results := map[string]float64{
 			"ipc":       ipc,
 			"mem_read":  reads,
 			"mem_write": writes,
-			"c6res":     c6res,
+			//"c6res":     c6res,
 		}
 
-		klog.Infof("Found in the cache: ipc: %v, reads: %v, writes: %v", ipc, reads, writes)
+		var socketNodes []string
+		for kubenode, s := range Sockets {
+			if s == socket && Nodes[kubenode] == curr_uuid {
+				socketNodes = append(socketNodes, kubenode)
+			}
+		}
+		currentNodeC6res := 0
+		socketSum := 0
+		socketCores := 0
+		sum := 0
+
+		for _,snode := range socketNodes {
+			c6res, ok := customcache.LabCache.Cache[snode]["c6res"]
+			if !ok {
+				klog.Infof("C6 state is nil")
+			}
+			if c6res * len(Cores[snode]) > 1 {
+				sum++
+			}
+			socketSum += c6res * len(Cores[snode])
+			socketCores += len(Cores[snode])
+			if snode == nodeName {
+				currentNodeC6res = c6res
+			}
+		}
+		customcache.LabCache.Mux.Unlock()
+
+		klog.Infof("Found in the cache: ipc: %v, reads: %v, writes: %v, c6: %v\n", ipc, reads, writes,socketSum/socketCores)
+		results["c6res"] = socketSum/socketCores
 		res := calculateScore(scorerInput{metrics: results}, customScoreFn)
 
-		if sum := c6res * float64(len(cores)); sum < 1 {
+		if sum < 1 {
 			//klog.Infof("Average C6 is less than 1, so we get: %v", average["c6res"])
-			res = res * c6res
+			res = res * socketSum/socketCores
 		} else {
 			res = res * 1
 		}
@@ -174,7 +198,6 @@ func customResourceScorer(nodeName string) (float64, error) {
 		res = res * float64(speed) * float64(maxFreq)
 
 		// Select Node
-
 		klog.Infof("Using the cached values, Node name %s, has score %v\n", nodeName, res)
 		return res, nil
 	}
@@ -221,6 +244,9 @@ func customResourceScorer(nodeName string) (float64, error) {
 		sum := 0
 		socketSum := 0.0
 		socketCores := 0.0
+		space := 0
+		currentNodeC6res := 0
+
 		for _, snode := range socketNodes {
 			currCores, _ := Cores[snode]
 			r, err := queryInfluxDbCores(metrics, curr_uuid, socket, numberOfRows, cfg, c, currCores)
@@ -235,6 +261,9 @@ func customResourceScorer(nodeName string) (float64, error) {
 			if average["c6res"]*float64(len(currCores)) >= 1 {
 				klog.Infof("Node %v has C6 sum: %v", snode, average["c6res"]*float64(len(currCores)))
 				sum++
+			}
+			if snode == nodeName {
+				currentNodeC6res = average["c6res"] * float64(len(currCores))
 			}
 			socketSum += average["c6res"] * float64(len(currCores))
 			socketCores += float64(len(currCores))
@@ -259,7 +288,7 @@ func customResourceScorer(nodeName string) (float64, error) {
 		}
 
 		//Update the cache with the new metrics
-		err = customcache.LabCache.UpdateCache(results, socketSum/socketCores, nodeName)
+		err = customcache.LabCache.UpdateCache(results, currentNodeC6res, nodeName)
 		if err != nil {
 			klog.Infof(err.Error())
 		} else {
@@ -272,7 +301,6 @@ func customResourceScorer(nodeName string) (float64, error) {
 		res = res * float64(speed) * float64(maxFreq)
 
 		// Select Node
-
 		klog.Infof("Node name %s, has score %v\n", nodeName, res)
 		return res, nil
 	} else {
@@ -282,39 +310,3 @@ func customResourceScorer(nodeName string) (float64, error) {
 
 }
 
-// WARNING
-// c6res is not a dependable metric for isnpecting core availability
-// Some Systems use higher core states (e.g c7res)
-// func findAvailability(response *client.Response, numberOfMetrics, numberOfRows, numberOfCores int, floor float64) (map[string]float64, error) {
-// 	// initialize the metrics map with a constant size
-// 	metrics := make(map[string]float64, numberOfMetrics)
-// 	rows := response.Results[0].Series[0]
-// 	for i := 1; i < len(rows.Columns); i++ {
-// 		//klog.Infof("Name of column %v : %v\nrange of values: %v\nnumber of rows: %v\nnumber of cores %v\n", i, rows.Columns[i], len(rows.Values), numberOfRows, numberOfCores)
-// 		for j := 0; j < numberOfRows; j++ {
-// 			//avg, max := 0.0, 0.0
-// 			for k := 0; k < numberOfCores; k++ {
-// 				val, err := rows.Values[j*numberOfCores+k][i].(json.Number).Float64()
-// 				if err != nil {
-// 					klog.Infof("Error while calculating %v", rows.Columns[i])
-// 					return false, err
-// 				}
-// 				// if val > floor {
-// 				// 	return true, nil
-// 				// }
-// 				// sum += val
-
-// 				//avg += val / float64(numberOfCores)
-// 				avg += val
-// 			}
-// 			metrics[rows.Columns[i]] += avg * float64(numberOfRows-j)
-// 		}
-// 		metrics[rows.Columns[i]] = metrics[rows.Columns[i]] / float64((numberOfRows * (numberOfRows + 1) / 2))
-// 		if metrics[row.Columns[i]] > 1 {
-// 			return true, nil
-// 		}
-// 		//klog.Infof("%v : %v", rows.Columns[i], metrics[rows.Columns[i]])
-// 	}
-// 	// TODO better handling for the returning errors
-// 	return false, nil
-// }

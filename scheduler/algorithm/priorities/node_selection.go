@@ -106,8 +106,41 @@ func queryInfluxDbCores(metrics []string, uuid string, socket,
 }
 
 func nodeSelectionScorer(nodeName string) (float64, error) {
-	//return (customRequestedScore(requested.MilliCPU, allocable.MilliCPU) +
-	//customRequestedScore(requested.Memory, allocable.Memory)) / 2
+	
+	
+
+	// check the cache
+	cores, _ := Cores[nodeName]
+
+	var results map[string]float64
+	// Check the cache
+	customcache.LabCache.Mux.Lock()
+
+	c6res, ok := customcache.LabCache.Cache[nodeName]["c6res"]
+	if !ok {
+		klog.Infof("C6 res is nil")
+	}
+
+	klog.Infof("Node: %v, Socket: %v, Server: %v", nodeName, Sockets[nodeName], Nodes[nodeName])
+	// If the cache has value use it
+	if c6res != -1 {
+
+		customcache.LabCache.Mux.Unlock()
+
+		klog.Infof("Found in the cache: ipc: %v, reads: %v, writes: %v, c6: %v\n", ipc, reads, writes,socketSum/socketCores)
+		//results["c6res"] = socketSum/socketCores
+		//res := calculateScore(scorerInput{metrics: results}, customScoreFn)
+
+
+		//Apply heterogeneity
+		// speed := links[Nodes[nodeName]][0] * links[Nodes[nodeName]][1]
+		// maxFreq := maxSpeed[Nodes[nodeName]]
+		// res = res * float64(speed) * float64(maxFreq)
+
+		// Select Node
+		klog.Infof("Using the cached values, Node name %s, has score %v\n", nodeName, res)
+		return c6res, nil
+	}
 
 	//read database information
 	var cfg Config

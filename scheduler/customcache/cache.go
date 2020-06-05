@@ -141,7 +141,6 @@ func (c *MlabCache) CleanCache() {
 
 func (c *MlabCache) UpdateCache(input map[string]float64, c6res float64, nodename string) error {
 	c.Mux.Lock()
-
 	c.Cache[nodename]["ipc"] = input["ipc"]
 	c.Cache[nodename]["mem_read"] = input["mem_read"]
 	c.Cache[nodename]["mem_write"] = input["mem_write"]
@@ -166,7 +165,7 @@ func (c *MlabCache) AddAppMetrics(app map[string]float64, nodename string, numCo
 	if win {
 		c.Cache[nodename]["c6res"] -= (100 - app["c6res"]) / float64(100*numCores)
 		if c.Cache[nodename]["c6res"] <= 0 {
-			c.Cache[nodename]["c6res"] = 0.00000001
+			c.Cache[nodename]["c6res"] = 0.000000000000001
 		}
 	}
 
