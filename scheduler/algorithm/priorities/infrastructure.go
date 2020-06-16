@@ -1,5 +1,14 @@
 package priorities
 
+var NovaNodes InfraConfig
+
+func init() {
+	err := readInfra(&NovaNodes, "/etc/kubernetes/infra.yaml")
+	if err != nil {
+		klog.Infof("Error while reading nodes' info")
+	}
+}
+
 import (
 	"os"
 	"time"
@@ -8,6 +17,9 @@ import (
 	"gopkg.in/yaml.v2"
 	"k8s.io/klog"
 )
+
+
+
 
 type scorerInput struct {
 	metricName string
@@ -28,6 +40,24 @@ type Config struct {
 	MonitoringSpecs struct {
 		TimeInterval float32 `yaml:"interval"`
 	} `yaml:"monitoring"`
+}
+
+type InfraConfig struct {
+	Nodes []struct {
+		Name           string  `yaml:"name"`
+		ThreadsPerCore int     `yaml:"threadsPerCore"`
+		MaxGHz         float64 `yaml:"maxGHz"`
+		L1DCache       int     `yaml:"l1dCache"`
+		L1ICache       int     `yaml:"l1iCache"`
+		L2Cache        int     `yaml:"l2Cache"`
+		L3Cache        int     `yaml:"l3Cache"`
+		Sockets        []struct {
+			ID    int `yaml:"id"`
+			Cores []struct {
+				ID int `yaml:"id"`
+			} `yaml:"cores"`
+		} `yaml:"sockets"`
+	} `yaml:"nodes"`
 }
 
 type Application struct {
@@ -155,15 +185,22 @@ var Applications = map[string]Application{
 	},
 }
 
-var Nodes = map[string]string{
-	"kube-01": "e77467ad-636e-4e7e-8bc9-53e46ae51da1",
-	"kube-02": "e77467ad-636e-4e7e-8bc9-53e46ae51da1",
-	"kube-03": "e77467ad-636e-4e7e-8bc9-53e46ae51da1",
-	"kube-04": "e77467ad-636e-4e7e-8bc9-53e46ae51da1",
-	"kube-05": "c4766d29-4dc1-11ea-9d98-0242ac110002",
-	"kube-06": "c4766d29-4dc1-11ea-9d98-0242ac110002",
-	"kube-07": "c4766d29-4dc1-11ea-9d98-0242ac110002",
-	"kube-08": "c4766d29-4dc1-11ea-9d98-0242ac110002",
+var NodesToUuid = map[string]string{
+	"ns50": "871e6bc6-af0a-11ea-81b7-0800383a77be",
+	"ns51": "8745a5ba-af0a-11ea-bfab-0800383a77b5",
+	"ns54": "8761281c-af0a-11ea-a8eb-0800383e2631",
+	"ns55": "877ee97e-af0a-11ea-8d62-0800383e22d1",
+	"ns56": "8795d7c4-af0a-11ea-8fac-0800383e2ec5",
+	"ns57": "87aedf94-af0a-11ea-912d-080038b27c19",
+	"ns58": "87ca3f00-af0a-11ea-83d1-0800383e2dbd",
+	"ns59": "87e5a38a-af0a-11ea-94e7-0800383e2e59",
+	"ns60": "8803abbe-af0a-11ea-8f4a-0800383e1e39",
+	"ns61": "8820131c-af0a-11ea-b716-0800383e1e45",
+	"ns62": "883ba30c-af0a-11ea-817b-0800383e20e5",
+	"ns63": "8859ae88-af0a-11ea-8cbf-0800383e206d",
+	"ns64": "887e06e8-af0a-11ea-9db3-0025909c1c9c",
+	"ns65": "889dd770-af0a-11ea-87ec-0025909c1cac",
+	"ns66": "88b8b0ae-af0a-11ea-b3c9-080038b65204",
 }
 
 var links = map[string][]float32{
@@ -185,7 +222,87 @@ var Sockets = map[string]int{
 	"kube-06": 1,
 	"kube-07": 0,
 	"kube-08": 1,
+
 }
+
+type Core struct {
+	ServerName string
+	SocketId int
+	CoreId int
+}
+
+type Socket struct {
+	ServerName string
+	SocketId int
+	Cores []Core
+}
+
+type Node struct {
+	Name string
+	L1dCache int
+	L1iCache int
+	L2Cache int
+	L3Cache int
+	UUid string
+	Sockets []Socket
+	ThreadsPerCore int
+}
+
+// var Nodes = []Node{
+// 	&Node{
+// 		Name: "ns50",
+// 		UUid: "",
+// 		L1dCache: 32,
+// 		L1iCache: 32,
+// 		L2Cache: 256,
+// 		L3Cache: 20480,
+// 		ThreadsPerCore: 1,
+// 		Sockets: []Socket {
+// 			&Socket{
+// 				SocketId: 0,
+// 				Cores: []Core {&Core {CoreId: 0},&Core {CoreId: 1},&Core {CoreId: 2},&Core {CoreId: 3},&Core {CoreId: 4},&Core {CoreId: 5},&Core {CoreId: 6},&Core {CoreId: 7}},
+// 			},
+// 			&Socket {
+// 				SocketId: 1,
+// 				Cores: []Core {&Core {CoreId: 8},&Core {CoreId: 9},&Core {CoreId: 10},&Core {CoreId: 11},&Core {CoreId: 12},&Core {CoreId: 13},&Core {CoreId: 14},&Core {CoreId: 15}},
+// 			},
+// 		},
+// 	},
+// 	&Node{
+// 		Name: "ns51",
+// 		UUid: "",
+// 		L1dCache: 32,
+// 		L1iCache: 32,
+// 		L2Cache: 256,
+// 		L3Cache: 20480,
+// 		ThreadsPerCore: 1,
+// 		Sockets: []Socket {
+// 			&Socket{
+// 				SocketId: 0,
+// 				Cores: []Core {&Core {CoreId: 0},&Core {CoreId: 1},&Core {CoreId: 2},&Core {CoreId: 3},&Core {CoreId: 4},&Core {CoreId: 5},&Core {CoreId: 6},&Core {CoreId: 7}},
+// 			},
+// 			&Socket {
+// 				SocketId: 1,
+// 				Cores: []Core {&Core {CoreId: 8},&Core {CoreId: 9},&Core {CoreId: 10},&Core {CoreId: 11},&Core {CoreId: 12},&Core {CoreId: 13},&Core {CoreId: 14},&Core {CoreId: 15}},
+// 			},
+// 		},
+// 	}
+// 	&Node{
+// 		Name: "ns50",
+// 		UUid: "",
+// 		Sockets: []Socket {
+// 			&Socket{
+// 				SocketId: 0,
+// 				Cores: []Core {&Core {CoreId: 0},&Core {CoreId: 1},&Core {CoreId: 2},&Core {CoreId: 3},&Core {CoreId: 4},&Core {CoreId: 5},&Core {CoreId: 6},&Core {CoreId: 7}},
+// 			},
+// 			&Socket {
+// 				SocketId: 1,
+// 				Cores: []Core {&Core {CoreId: 8},&Core {CoreId: 9},&Core {CoreId: 10},&Core {CoreId: 11},&Core {CoreId: 12},&Core {CoreId: 13},&Core {CoreId: 14},&Core {CoreId: 15}},
+// 			},
+// 		},
+// 	}
+// }
+
 
 var Cores = map[string][]int{
 	"kube-01": []int{20, 21, 22, 23},
@@ -199,6 +316,22 @@ var Cores = map[string][]int{
 }
 
 func readFile(cfg *Config, file string) error {
+	f, err := os.Open(file)
+	if err != nil {
+		klog.Infof("Config file for scheduler not found. Error: %v", err)
+		return err
+	}
+	defer f.Close()
+
+	decoder := yaml.NewDecoder(f)
+	err = decoder.Decode(&cfg)
+	if err != nil {
+		klog.Infof("Unable to decode the config file. Error: %v", err)
+		return err
+	}
+	return nil
+}
+func readInfra(cfg *InfraConfig, file string) error {
 	f, err := os.Open(file)
 	if err != nil {
 		klog.Infof("Config file for scheduler not found. Error: %v", err)

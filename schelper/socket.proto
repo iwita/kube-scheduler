@@ -1,0 +1,15 @@
+syntax = "proto3";
+
+package socket;
+
+message Socket {
+    int32 id = 1;
+}
+
+message Response {
+    bool ok = 1;
+}
+
+service SocketService {
+    rpc HandleCpuAffinity(Socket) returns (Response) {}
+}
