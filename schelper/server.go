@@ -4,12 +4,13 @@ import (
 	"log"
 	"net"
 
+	"github.com/iwita/kube-scheduler/schelper/socket"
 	"google.golang.org/grpc"
 )
 
 func main() {
 	//if we crash the go code, we get the file name and row number
-	log.SetFlags(log.LstdFlags | log.Lshortfile)
+	//log.SetFlags(log.LstdFlags | log.Lshortfile)
 
 	//Connect to mongoDB
 	// client, err := mongo.NewClient(options.Client().ApplyURI("mongodb://localhost:27017"))
@@ -41,5 +42,5 @@ func main() {
 		log.Fatalf("failed to serve: %s", err)
 	}
 
-	socket.RegisterSocketServiceServer(grpcServer)
+	socket.RegisterSocketServiceServer(grpcServer, &s)
 }

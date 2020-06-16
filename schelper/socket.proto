@@ -4,6 +4,7 @@ package socket;
 
 message Socket {
     int32 id = 1;
+    string containerName =2 ;
 }
 
 message Response {
