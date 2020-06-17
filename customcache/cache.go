@@ -1,12 +1,13 @@
 package customcache
 
 import (
+	"strconv"
 	"sync"
 	"time"
 )
 
 var LabCache *MlabCache
-var duration int = 10
+var duration int = 20
 
 type MlabCache struct {
 	Cache   map[string]map[string]float64
@@ -14,67 +15,12 @@ type MlabCache struct {
 	Timeout *time.Ticker
 }
 
-func init() {
+func (c *MlabCache) init() {
 	LabCache = &MlabCache{
-		Cache: map[string]map[string]float64{
-			"kube-01": map[string]float64{
-				"ipc":       -1,
-				"mem_read":  -1,
-				"mem_write": -1,
-				"c6res":     -1,
-			},
-			"kube-02": map[string]float64{
-				"ipc":       -1,
-				"mem_read":  -1,
-				"mem_write": -1,
-				"c6res":     -1,
-			},
-			"kube-03": map[string]float64{
-				"ipc":       -1,
-				"mem_read":  -1,
-				"mem_write": -1,
-				"c6res":     -1,
-			},
-			"kube-04": map[string]float64{
-				"ipc":       -1,
-				"mem_read":  -1,
-				"mem_write": -1,
-				"c6res":     -1,
-			},
-			"kube-05": map[string]float64{
-				"ipc":       -1,
-				"mem_read":  -1,
-				"mem_write": -1,
-				"c6res":     -1,
-			},
-			"kube-06": map[string]float64{
-				"ipc":       -1,
-				"mem_read":  -1,
-				"mem_write": -1,
-				"c6res":     -1,
-			},
-			"kube-07": map[string]float64{
-				"ipc":       -1,
-				"mem_read":  -1,
-				"mem_write": -1,
-				"c6res":     -1,
-			},
-			"kube-08": map[string]float64{
-				"ipc":       -1,
-				"mem_read":  -1,
-				"mem_write": -1,
-				"c6res":     -1,
-			},
-		},
+		Cache:   make(map[string]map[string]float64, 0),
+		Timeout: time.NewTicker(time.Duration(duration) * time.Second),
 	}
-	LabCache.Timeout = time.NewTicker(time.Duration(10) * time.Second)
 }
-
-// func New() {
-
-// }
-
-// var Τimeout *time.Ticker
 
 func (c *MlabCache) CleanCache() {
 	c.Mux.Lock()
@@ -84,75 +30,21 @@ func (c *MlabCache) CleanCache() {
 			c.Cache[k][key] = -1
 		}
 	}
-	// c.Cache = map[string]map[string]float64{
-	// 	"kube-01": map[string]float64{
-	// 		"ipc":       -1,
-	// 		"mem_read":  -1,
-	// 		"mem_write": -1,
-	// 		"c6res":     -1,
-	// 	},
-	// 	"kube-02": map[string]float64{
-	// 		"ipc":       -1,
-	// 		"mem_read":  -1,
-	// 		"mem_write": -1,
-	// 		"c6res":     -1,
-	// 	},
-	// 	"kube-03": map[string]float64{
-	// 		"ipc":       -1,
-	// 		"mem_read":  -1,
-	// 		"mem_write": -1,
-	// 		"c6res":     -1,
-	// 	},
-	// 	"kube-04": map[string]float64{
-	// 		"ipc":       -1,
-	// 		"mem_read":  -1,
-	// 		"mem_write": -1,
-	// 		"c6res":     -1,
-	// 	},
-	// 	"kube-05": map[string]float64{
-	// 		"ipc":       -1,
-	// 		"mem_read":  -1,
-	// 		"mem_write": -1,
-	// 		"c6res":     -1,
-	// 	},
-	// 	"kube-06": map[string]float64{
-	// 		"ipc":       -1,
-	// 		"mem_read":  -1,
-	// 		"mem_write": -1,
-	// 		"c6res":     -1,
-	// 	},
-	// 	"kube-07": map[string]float64{
-	// 		"ipc":       -1,
-	// 		"mem_read":  -1,
-	// 		"mem_write": -1,
-	// 		"c6res":     -1,
-	// 	},
-	// 	"kube-08": map[string]float64{
-	// 		"ipc":       -1,
-	// 		"mem_read":  -1,
-	// 		"mem_write": -1,
-	// 		"c6res":     -1,
-	// 	},
-	// }
-	//c.Timeout.Stop()
-	//Timeout := time.NewTicker(time.Duration(10 * time.Second))
+
 	c.Mux.Unlock()
 }
 
-func (c *MlabCache) UpdateCache(input map[string]float64, c6res float64, nodename string) error {
+func (c *MlabCache) UpdateCache(input map[string]float64, c6res float64, socketId int32, nodename string) error {
 	c.Mux.Lock()
-
-	c.Cache[nodename]["ipc"] = input["ipc"]
-	c.Cache[nodename]["mem_read"] = input["mem_read"]
-	c.Cache[nodename]["mem_write"] = input["mem_write"]
-	c.Cache[nodename]["c6res"] = c6res
+	nn := nodename + strconv.Itoa(int(socketId))
+	c.Cache[nn]["ipc"] = input["ipc"]
+	c.Cache[nn]["mem_read"] = input["mem_read"]
+	c.Cache[nn]["mem_write"] = input["mem_write"]
+	c.Cache[nn]["c6res"] = c6res
 
 	// Reset the ticker
 	c.Timeout = time.NewTicker(time.Duration(duration) * time.Second)
-	//klog.Infof("Reset the Ticker")
 	c.Mux.Unlock()
-
-	//klog.Infof("After cache update")
 	c.printCached(nodename)
 	return nil
 }
