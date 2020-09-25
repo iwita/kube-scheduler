@@ -1,14 +1,5 @@
 package priorities
 
-var NovaNodes InfraConfig
-
-func init() {
-	err := readInfra(&NovaNodes, "/etc/kubernetes/infra.yaml")
-	if err != nil {
-		klog.Infof("Error while reading nodes' info")
-	}
-}
-
 import (
 	"os"
 	"time"
@@ -18,8 +9,60 @@ import (
 	"k8s.io/klog"
 )
 
+var NovaNodes InfraConfig
+var NameToNode map[string]Node
 
+func init() {
+	err := readInfra(&NovaNodes, "/etc/kubernetes/infra.yaml")
+	if err != nil {
+		klog.Infof("Error while reading nodes' info")
+	}
 
+	// Build a map [name : Node]
+	NameToNode = make(map[string]Node)
+	for _, node := range NovaNodes.Nodes {
+		name := node.Name
+		temp := Node{
+			Uuid:    node.Uuid,
+			Sockets: make([]Socket, 0),
+		}
+		for _, socket := range node.Sockets {
+			s := Socket{
+				Id:    socket.ID,
+				Cores: make([]Core, 0),
+			}
+			temp.Sockets = append(temp.Sockets, s)
+			for _, core := range socket.Cores {
+				c := Core{
+					Id: core.ID,
+				}
+				s.Cores = append(s.Cores, c)
+			}
+		}
+		NameToNode[name] = temp
+	}
+}
+
+type Socket struct {
+	Cores []Core
+	Id    int
+}
+
+type Core struct {
+	Id int
+}
+
+type Node struct {
+	Sockets        []Socket
+	Name           string
+	Uuid           string
+	ThreadsPerCore int
+	MaxGHz         float64
+	L1DCache       int
+	L1ICache       int
+	L2Cache        int
+	L3Cache        int
+}
 
 type scorerInput struct {
 	metricName string
@@ -45,6 +88,7 @@ type Config struct {
 type InfraConfig struct {
 	Nodes []struct {
 		Name           string  `yaml:"name"`
+		Uuid           string  `yaml:"uuid`
 		ThreadsPerCore int     `yaml:"threadsPerCore"`
 		MaxGHz         float64 `yaml:"maxGHz"`
 		L1DCache       int     `yaml:"l1dCache"`
@@ -186,21 +230,21 @@ var Applications = map[string]Application{
 }
 
 var NodesToUuid = map[string]string{
-	"ns50": "871e6bc6-af0a-11ea-81b7-0800383a77be",
-	"ns51": "8745a5ba-af0a-11ea-bfab-0800383a77b5",
-	"ns54": "8761281c-af0a-11ea-a8eb-0800383e2631",
-	"ns55": "877ee97e-af0a-11ea-8d62-0800383e22d1",
-	"ns56": "8795d7c4-af0a-11ea-8fac-0800383e2ec5",
-	"ns57": "87aedf94-af0a-11ea-912d-080038b27c19",
-	"ns58": "87ca3f00-af0a-11ea-83d1-0800383e2dbd",
-	"ns59": "87e5a38a-af0a-11ea-94e7-0800383e2e59",
-	"ns60": "8803abbe-af0a-11ea-8f4a-0800383e1e39",
-	"ns61": "8820131c-af0a-11ea-b716-0800383e1e45",
-	"ns62": "883ba30c-af0a-11ea-817b-0800383e20e5",
-	"ns63": "8859ae88-af0a-11ea-8cbf-0800383e206d",
-	"ns64": "887e06e8-af0a-11ea-9db3-0025909c1c9c",
-	"ns65": "889dd770-af0a-11ea-87ec-0025909c1cac",
-	"ns66": "88b8b0ae-af0a-11ea-b3c9-080038b65204",
+	"ns50": "a5822889-cf81-4db6-b5ae-8180dc90e9b6",
+	"ns51": "506c38e1-cdd7-4bfc-b9c9-18a21caf16f8",
+	"ns54": "69032188-ac59-4896-adc6-806346b0d1a5",
+	"ns55": "c34c2ecb-6291-4bf2-b018-1435e3e9534b",
+	"ns56": "521b6728-7856-4275-98bc-f05515271371",
+	"ns57": "e88ee014-f124-4b43-8e80-48e7fc06f0f7",
+	"ns58": "4a51cf0b-5540-4366-a064-376e1c3a3385",
+	"ns59": "fef31bb5-6a32-4c42-ac04-d6f9334bcfc2",
+	"ns60": "4d3cc778-9213-40c9-9735-cfd98fa26e5c",
+	"ns61": "dded9f12-47e9-44a8-8d6c-5d189a4f3d32",
+	"ns62": "eca73b50-ce7f-4ae8-88ac-9f53843cf239",
+	"ns63": "f3160faf-27af-4822-93d4-662b3610dd3b",
+	"ns64": "24ec9b01-3781-4d10-a148-3b1f999ecc22",
+	"ns65": "1804b1f7-ed47-4ebd-9f0d-4e942dcb47e4",
+	"ns66": "820d2305-9d1d-4098-a9be-0240a717f067",
 }
 
 var links = map[string][]float32{
@@ -222,31 +266,30 @@ var Sockets = map[string]int{
 	"kube-06": 1,
 	"kube-07": 0,
 	"kube-08": 1,
-
 }
 
-type Core struct {
-	ServerName string
-	SocketId int
-	CoreId int
-}
+// type Core struct {
+// 	ServerName string
+// 	SocketId   int
+// 	CoreId     int
+// }
 
-type Socket struct {
-	ServerName string
-	SocketId int
-	Cores []Core
-}
+// type Socket struct {
+// 	ServerName string
+// 	SocketId   int
+// 	Cores      []Core
+// }
 
-type Node struct {
-	Name string
-	L1dCache int
-	L1iCache int
-	L2Cache int
-	L3Cache int
-	UUid string
-	Sockets []Socket
-	ThreadsPerCore int
-}
+// type Node struct {
+// 	Name           string
+// 	L1dCache       int
+// 	L1iCache       int
+// 	L2Cache        int
+// 	L3Cache        int
+// 	UUid           string
+// 	Sockets        []Socket
+// 	ThreadsPerCore int
+// }
 
 // var Nodes = []Node{
 // 	&Node{
@@ -302,7 +345,6 @@ type Node struct {
 // 		},
 // 	}
 // }
-
 
 var Cores = map[string][]int{
 	"kube-01": []int{20, 21, 22, 23},

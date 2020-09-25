@@ -18,7 +18,7 @@ func init() {
 	space := regexp.MustCompile(`\s+`)
 	nodesString := space.ReplaceAllString(getNumaNodes(), " ")
 	for _, numaNode := range strings.Split(nodesString, " ") {
-		c1 := "NUMA " + numaNode + "CPU(s)"
+		c1 := "NUMA " + numaNode + " CPU(s)"
 		command := "lscpu | grep '" + c1 + " ' | awk '{print $1}'"
 		res, err1, err2 := ShellCommand(command)
 		if err1 != "" || err2 != nil {

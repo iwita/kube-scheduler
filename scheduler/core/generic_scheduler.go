@@ -244,16 +244,16 @@ func (g *genericScheduler) Schedule(pod *v1.Pod, nodeLister algorithm.NodeLister
 
 	//start-custom
 
-	select {
-	// clean the cache if 10 seconds are passed
-	case <-customcache.LabCache.Timeout.C:
-		klog.Infof("Time to erase: %v", time.Now())
-		//customcache.LabCache.Timeout.Stop()
-		customcache.LabCache.CleanCache()
-		klog.Infof("Cache: %v", customcache.LabCache.Cache)
-	default:
-		klog.Infof("Cache is Valid, Time: %v", customcache.LabCache.Timeout.C)
-	}
+	// select {
+	// // clean the cache if 10 seconds are passed
+	// case <-customcache.LabCache.Timeout.C:
+	// 	klog.Infof("Time to erase: %v", time.Now())
+	// 	//customcache.LabCache.Timeout.Stop()
+	// 	customcache.LabCache.CleanCache()
+	// 	klog.Infof("Cache: %v", customcache.LabCache.Cache)
+	// default:
+	// 	klog.Infof("Cache is Valid, Time: %v", customcache.LabCache.Timeout.C)
+	// }
 
 	socketPrioritizers := []priorities.PriorityConfig{
 		{
@@ -263,6 +263,7 @@ func (g *genericScheduler) Schedule(pod *v1.Pod, nodeLister algorithm.NodeLister
 		},
 	}
 
+	// Select the node with the best socket
 	klog.Infof("Selecting Socket")
 
 	priorityList, err := PrioritizeNodes(pod, g.nodeInfoSnapshot.NodeInfoMap, metaPrioritiesInterface, socketPrioritizers, filteredNodes, g.extenders)
@@ -279,37 +280,37 @@ func (g *genericScheduler) Schedule(pod *v1.Pod, nodeLister algorithm.NodeLister
 	// ------------------START-CUSTOM-----------------------
 	// -----------------------------------------------------
 	//trace.Step("Selecting socket")
-	hosts, err := g.selectHostOnWinningSocket(priorityList)
-
+	//hosts, err := g.selectHostOnWinningSocket(priorityList)
+	host, err := g.selectHost(priorityList)
 	//declare a subset of the snapshot of all available nodes
 	// create a new map, containing only the subset of the nodes
 	//var winningSocketNodes map[string]*schedulernodeinfo.NodeInfo
-	var winningSocketNodes []*v1.Node
+	// var winningSocketNodes []*v1.Node
 
-	for _, wn := range hosts {
-		for _, n := range filteredNodes {
-			if n.Name == wn {
-				winningSocketNodes = append(winningSocketNodes, n)
-			}
-		}
-	}
+	// for _, wn := range hosts {
+	// 	for _, n := range filteredNodes {
+	// 		if n.Name == wn {
+	// 			winningSocketNodes = append(winningSocketNodes, n)
+	// 		}
+	// 	}
+	// }
 
 	//trace.Step("Selecting host")
-	klog.Infof("Selecting host")
-	nodePrioritizers := []priorities.PriorityConfig{
-		{
-			Name:   priorities.NodeSelectionPriority,
-			Map:    priorities.NodeSelectionPriorityMap,
-			Weight: 100,
-		},
-	}
-	priorityList, err = PrioritizeNodes(pod, g.nodeInfoSnapshot.NodeInfoMap, metaPrioritiesInterface, nodePrioritizers, winningSocketNodes, g.extenders)
+	// klog.Infof("Selecting host")
+	// nodePrioritizers := []priorities.PriorityConfig{
+	// 	{
+	// 		Name:   priorities.NodeSelectionPriority,
+	// 		Map:    priorities.NodeSelectionPriorityMap,
+	// 		Weight: 100,
+	// 	},
+	// }
+	// priorityList, err = PrioritizeNodes(pod, g.nodeInfoSnapshot.NodeInfoMap, metaPrioritiesInterface, nodePrioritizers, winningSocketNodes, g.extenders)
 
-	// The winner host
-	host, err := g.selectHost(priorityList)
+	// // The winner host
+	// host, err := g.selectHost(priorityList)
 
-	winningSocket := priorities.Sockets[host]
-	winningUuid := priorities.Nodes[host]
+	// winningSocket := priorities.Sockets[host]
+	// winningUuid := priorities.Nodes[host]
 
 	klog.Infof("Winning node: %v, Socket %v, UUID: %v", host, winningSocket, winningUuid)
 

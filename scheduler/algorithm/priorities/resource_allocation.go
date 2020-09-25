@@ -36,7 +36,7 @@ type ResourceAllocationPriority struct {
 
 type CustomAllocationPriority struct {
 	Name   string
-	scorer func(nodeName string) (float64, error)
+	scorer func(nodeName string) (float64, int, error)
 }
 
 // PriorityMap priorities nodes according to the resource allocations on the node.
@@ -117,6 +117,7 @@ func (r *CustomAllocationPriority) PriorityMap(
 	//requested.MilliCPU += nodeInfo.NonZeroRequest().MilliCPU
 	//requested.Memory += nodeInfo.NonZeroRequest().Memory
 	var score float64
+	var socket int
 	// Check if the pod has volumes and this could be added to scorer function for balanced resource allocation.
 	// if len(pod.Spec.Volumes) >= 0 && utilfeature.DefaultFeatureGate.Enabled(features.BalanceAttachedNodeVolumes) && nodeInfo.TransientInfo != nil {
 	// 	score = r.scorer(&requested, &allocatable, true, nodeInfo.TransientInfo.TransNodeInfo.RequestedVolumes, nodeInfo.TransientInfo.TransNodeInfo.AllocatableVolumesCount)
@@ -124,7 +125,7 @@ func (r *CustomAllocationPriority) PriorityMap(
 	// 	score = r.scorer(&requested, &allocatable, false, 0, 0)
 	// }
 
-	score, _ = r.scorer(node.Name)
+	score, socket, _ = r.scorer(node.Name)
 
 	// if klog.V(10) {
 	// 	if len(pod.Spec.Volumes) >= 0 && utilfeature.DefaultFeatureGate.Enabled(features.BalanceAttachedNodeVolumes) && nodeInfo.TransientInfo != nil {

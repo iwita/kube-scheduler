@@ -28,13 +28,14 @@ var apps map[string]int = map[string]int{
 var normalized []float64
 
 func main() {
+	offset, _ := strconv.Atoi(os.Args[1])
 	scanner := bufio.NewScanner(os.Stdin)
 	//var counter int
 	for scanner.Scan() {
 		s := scanner.Text()
 		//fmt.Println("Full line\n", s)
 		s1 := strings.Split(s, " ")
-		appName := s1[0][0 : len(s1[0])-19]
+		appName := s1[0][0 : len(s1[0])-offset]
 		appTime, _ := strconv.Atoi(s1[1])
 		normalized = append(normalized, float64(apps[appName])/float64(appTime))
 	}
