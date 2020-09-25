@@ -7,7 +7,9 @@ import (
 )
 
 var LabCache *MlabCache
-var duration int = 20
+
+// duration of caching (seconds)
+var duration int = 10
 
 type MlabCache struct {
 	Cache   map[string]map[string]float64
@@ -49,13 +51,14 @@ func (c *MlabCache) UpdateCache(input map[string]float64, c6res float64, socketI
 	return nil
 }
 
-func (c *MlabCache) AddAppMetrics(app map[string]float64, nodename string, numCores int) {
+func (c *MlabCache) AddAppMetrics(app map[string]float64, nodename string, socketId int32, numCores int) {
 	c.Mux.Lock()
-	c.Cache[nodename]["mem_read"] += app["mem_read"]
-	c.Cache[nodename]["mem_write"] += app["mem_write"]
-	c.Cache[nodename]["c6res"] -= (100 - app["c6res"]) / float64(100*numCores)
-	if c.Cache[nodename]["c6res"] <= 0 {
-		c.Cache[nodename]["c6res"] = 0.00000001
+	nn := nodename + strconv.Itoa(int(socketId))
+	c.Cache[nn]["mem_read"] += app["mem_read"]
+	c.Cache[nn]["mem_write"] += app["mem_write"]
+	c.Cache[nn]["c6res"] -= (100 - app["c6res"]) / float64(100*numCores)
+	if c.Cache[nn]["c6res"] <= 0 {
+		c.Cache[nn]["c6res"] = 0.00000001
 	}
 	//TODO
 	// handle ipc addition
