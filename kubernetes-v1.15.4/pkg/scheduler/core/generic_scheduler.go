@@ -19,6 +19,7 @@ package core
 import (
 	"context"
 	"fmt"
+	"log"
 	"math"
 	"sort"
 	"strings"
@@ -26,6 +27,8 @@ import (
 	"sync/atomic"
 	"time"
 
+	"github.com/iwita/node-agent/info"
+	"google.golang.org/grpc"
 	"k8s.io/klog"
 
 	"github.com/iwita/kube-scheduler/customcache"
@@ -355,10 +358,26 @@ func (g *genericScheduler) Schedule(pod *v1.Pod, nodeLister algorithm.NodeLister
 
 	customcache.LabCache.AddAppMetrics(priorities.Applications[podName].Metrics, host, int32(socket), numCores)
 
-	// -----------------------------------------------------
-	// ------------------END-CUSTOM-----------------------
-	// -----------------------------------------------------
-	//trace.Step("Selecting host")
+	// Send gRPC request to the corresponding agent
+	klog.Infof("About to Send gRPC request to node: %v, to pin the app in socket: %v\n", host, socket)
+	var conn *grpc.ClientConn
+	conn, err = grpc.Dial(host+":4242", grpc.WithInsecure())
+	if err != nil {
+		log.Fatalf("did not connect: %s", err)
+	}
+	defer conn.Close()
+	c := info.NewTasksetAdvisorClient(conn)
+	response, err := c.Pin(context.Background(), &info.Info{
+		Socket: &info.SocketType{SocketId: int32(socket)},
+		Pod:    &info.PodType{PodName: pod.ObjectMeta.Name},
+	})
+
+	if err != nil {
+		log.Fatalf("Error when calling Pin: %s", err)
+	}
+	log.Printf("Response from server: %s", response.Body)
+
+	// End of gRPC client
 
 	klog.Infof("Return (generic_scheduler.go)")
 	return ScheduleResult{

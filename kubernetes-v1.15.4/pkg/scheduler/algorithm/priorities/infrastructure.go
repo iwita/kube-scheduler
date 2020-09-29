@@ -74,6 +74,9 @@ type Config struct {
 		Port string `yaml:"port"`
 		Host string `yaml:"host"`
 	} `yaml:"server"`
+	Agent struct {
+		Port string `yaml:"port"`
+	}
 	Database struct {
 		Type     string `yaml:"type"`
 		Name     string `yaml:"name"`
@@ -88,7 +91,7 @@ type Config struct {
 type InfraConfig struct {
 	Nodes []struct {
 		Name           string  `yaml:"name"`
-		Uuid           string  `yaml:"uuid`
+		Uuid           string  `yaml:"uuid"`
 		ThreadsPerCore int     `yaml:"threadsPerCore"`
 		MaxGHz         float64 `yaml:"maxGHz"`
 		L1DCache       int     `yaml:"l1dCache"`

@@ -249,6 +249,8 @@ github.com/iwita/kube-scheduler v0.0.0-20200617155250-775c14708831 h1:cJwkS0408u
 github.com/iwita/kube-scheduler v0.0.0-20200617155250-775c14708831/go.mod h1:aRvokpQlxArgPHMKU1uXJ4p7cj1EnASm4OK880rgfqc=
 github.com/iwita/kube-scheduler v0.0.0-20200925115751-ea20621cc941 h1:/gQivlTq+q6zU/smiy7i7FqKqy5aTKHLqFbtBTStsKQ=
 github.com/iwita/kube-scheduler v0.0.0-20200925115751-ea20621cc941/go.mod h1:aRvokpQlxArgPHMKU1uXJ4p7cj1EnASm4OK880rgfqc=
+github.com/iwita/node-agent v0.0.0-20200929075820-8321abd74e49 h1:dvZo/VM8HGW/GAfv0XZmYptdcF2OnlqEniQb/+RFpL0=
+github.com/iwita/node-agent v0.0.0-20200929075820-8321abd74e49/go.mod h1:LLisDxfiKFnCPrM1NvCc7iLL0eMver+6J7XwZ5Ycofs=
 github.com/jmespath/go-jmespath v0.0.0-20180206201540-c2b33e8439af h1:pmfjZENx5imkbgOkpRUYLnmbU7UEFbjtDA2hxJ1ichM=
 github.com/jmespath/go-jmespath v0.0.0-20180206201540-c2b33e8439af/go.mod h1:Nht3zPeWKUH0NzdCt2Blrr5ys8VGpn0CEB0cQHVjt7k=
 github.com/jonboulle/clockwork v0.0.0-20141017032234-72f9bd7c4e0c h1:XpRROA6ssPlTwJI8/pH+61uieOkcJhmAFz25cu0B94Y=
@@ -492,6 +494,10 @@ google.golang.org/genproto v0.0.0-20170731182057-09f6ed296fc6 h1:72GtwBPfq6av9X0
 google.golang.org/genproto v0.0.0-20170731182057-09f6ed296fc6/go.mod h1:JiN7NxoALGmiZfu7CAH4rXhgtRTLTxftemlI0sWmxmc=
 google.golang.org/grpc v1.13.0 h1:bHIbVsCwmvbArgCJmLdgOdHFXlKqTOVjbibbS19cXHc=
 google.golang.org/grpc v1.13.0/go.mod h1:yo6s7OP7yaDglbqo1J04qKzAhqBH6lvTonzMVmEdcZw=
+google.golang.org/grpc/cmd/protoc-gen-go-grpc v0.0.0-20200924182952-21f897eab8af/go.mod h1:6Kw0yEErY5E/yWrBtf03jp27GLLJujG4z/JK95pnjjw=
+google.golang.org/protobuf v1.23.0/go.mod h1:EGpADcykh3NcUnDUJcl1+ZksZNG86OlYog2l/sGQquU=
+google.golang.org/protobuf v1.25.0 h1:Ejskq+SyPohKW+1uil0JJMtmHCgJPJ/qWTxr8qp+R4c=
+google.golang.org/protobuf v1.25.0/go.mod h1:9JNX74DMeImyA3h4bdi1ymwjUzf21/xIlbajtzgsN7c=
 gopkg.in/check.v1 v0.0.0-20161208181325-20d25e280405 h1:yhCVgyC4o1eVCa2tZl7eS0r+SDo693bJlVdllGtEeKM=
 gopkg.in/check.v1 v0.0.0-20161208181325-20d25e280405/go.mod h1:Co6ibVJAznAaIkqp8huTwlJQCZ016jof/cbN4VW5Yz0=
 gopkg.in/fsnotify.v1 v1.4.7 h1:xOHLXZwVvI9hhs+cLKq5+I5onOuwQLhQwiu63xxlHs4=
