@@ -54,5 +54,5 @@ const (
 	// Custom Resource Priority
 	CustomRequestedPriority = "CustomRequestedPriority"
 	// Node Selection Priority
-	NodeSelectionPriority = "NodeSelectionPriority"
+	//NodeSelectionPriority = "NodeSelectionPriority"
 )

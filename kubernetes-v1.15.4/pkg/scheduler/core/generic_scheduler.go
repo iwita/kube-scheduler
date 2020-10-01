@@ -27,9 +27,9 @@ import (
 	"sync/atomic"
 	"time"
 
-	"github.com/iwita/node-agent/info"
-	"google.golang.org/grpc"
+	grpc "google.golang.org/grpc"
 	"k8s.io/klog"
+	"k8s.io/kubernetes/pkg/scheduler/node-agent/info"
 
 	"github.com/iwita/kube-scheduler/customcache"
 	v1 "k8s.io/api/core/v1"
