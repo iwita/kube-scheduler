@@ -17,7 +17,7 @@ type MlabCache struct {
 	Timeout *time.Ticker
 }
 
-func (c *MlabCache) init() {
+func init() {
 	LabCache = &MlabCache{
 		Cache:   make(map[string]map[string]float64, 0),
 		Timeout: time.NewTicker(time.Duration(duration) * time.Second),

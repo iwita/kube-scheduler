@@ -20,6 +20,7 @@ func init() {
 
 	// Build a map [name : Node]
 	NameToNode = make(map[string]Node)
+	klog.Infof("Nodes: %v", NovaNodes.Nodes)
 	for _, node := range NovaNodes.Nodes {
 		name := node.Name
 		temp := Node{
@@ -31,16 +32,19 @@ func init() {
 				Id:    socket.ID,
 				Cores: make([]Core, 0),
 			}
-			temp.Sockets = append(temp.Sockets, s)
+			//temp.Sockets = append(temp.Sockets, s)
 			for _, core := range socket.Cores {
 				c := Core{
 					Id: core.ID,
 				}
 				s.Cores = append(s.Cores, c)
 			}
+			temp.Sockets = append(temp.Sockets, s)
+
 		}
 		NameToNode[name] = temp
 	}
+	klog.Infof("Read from yaml: %v", NameToNode["ns51"])
 }
 
 type Socket struct {

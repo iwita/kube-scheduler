@@ -100,6 +100,7 @@ func customScoreInfluxDB(metrics []string, uuid string, socket,
 	//q := client.NewQuery("select ipc from system_metrics", "evolve", "")
 	q := client.NewQuery(command.String(), cfg.Database.Name, "")
 	response, err := c.Query(q)
+	klog.Infof("Query: %v, Response: %v", q, response)
 	if err != nil {
 		klog.Infof("Error while executing the query: %v", err.Error())
 		return nil, err
@@ -230,6 +231,8 @@ func customResourceScorer(nodeName string) (float64, int, error) {
 	defer c.Close()
 
 	uuid := NameToNode[nodeName].Uuid
+	klog.Infof("Node: %v, uuid: %v", nodeName, uuid)
+
 	// query the last 'time' seconds
 	time := 20
 	// calculate the rows of data needed for this interval
@@ -278,7 +281,7 @@ func customResourceScorer(nodeName string) (float64, int, error) {
 		for _, c := range socket.Cores {
 			currCores = append(currCores, c.Id)
 		}
-
+		klog.Infof("Cores of this socket are: %v\n", currCores) 
 		// if c6 does not exist in the database
 		if ok_c6 && c6 != -1 {
 			if c6*float64(len(currCores)) > 1 {
