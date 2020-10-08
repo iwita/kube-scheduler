@@ -25,6 +25,7 @@ func init() {
 		name := node.Name
 		temp := Node{
 			Uuid:    node.Uuid,
+			IP:      node.IP,
 			Sockets: make([]Socket, 0),
 		}
 		for _, socket := range node.Sockets {
@@ -44,7 +45,7 @@ func init() {
 		}
 		NameToNode[name] = temp
 	}
-	klog.Infof("Read from yaml: %v", NameToNode["ns51"])
+	//klog.Infof("Read from yaml: %v", NameToNode["ns51"])
 }
 
 type Socket struct {
@@ -60,6 +61,7 @@ type Node struct {
 	Sockets        []Socket
 	Name           string
 	Uuid           string
+	IP             string
 	ThreadsPerCore int
 	MaxGHz         float64
 	L1DCache       int
@@ -96,6 +98,7 @@ type InfraConfig struct {
 	Nodes []struct {
 		Name           string  `yaml:"name"`
 		Uuid           string  `yaml:"uuid"`
+		IP             string  `yaml:"ip"`
 		ThreadsPerCore int     `yaml:"threadsPerCore"`
 		MaxGHz         float64 `yaml:"maxGHz"`
 		L1DCache       int     `yaml:"l1dCache"`

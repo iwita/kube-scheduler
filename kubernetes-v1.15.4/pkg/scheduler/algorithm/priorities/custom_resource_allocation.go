@@ -254,7 +254,7 @@ func customResourceScorer(nodeName string) (float64, int, error) {
 		reads, ok_reads := customcache.LabCache.Cache[nn]["mem_read"]
 		writes, ok_writes := customcache.LabCache.Cache[nn]["mem_write"]
 		c6, ok_c6 := customcache.LabCache.Cache[nn]["c6res"]
-
+		customcache.LabCache.Mux.Lock()
 		if ok_ipc && ok_reads && ok_writes && ipc != -1 && reads != -1 && writes != -1 {
 			results = map[string]float64{
 				"ipc":       ipc,
@@ -281,7 +281,7 @@ func customResourceScorer(nodeName string) (float64, int, error) {
 		for _, c := range socket.Cores {
 			currCores = append(currCores, c.Id)
 		}
-		klog.Infof("Cores of this socket are: %v\n", currCores) 
+		klog.Infof("Cores of this socket are: %v\n", currCores)
 		// if c6 does not exist in the database
 		if ok_c6 && c6 != -1 {
 			if c6*float64(len(currCores)) > 1 {
