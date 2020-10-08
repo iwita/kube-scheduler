@@ -45,7 +45,7 @@ func init() {
 		}
 		NameToNode[name] = temp
 	}
-	//klog.Infof("Read from yaml: %v", NameToNode["ns51"])
+	klog.Infof("Read from yaml: %v", NameToNode["ns51"])
 }
 
 type Socket struct {
@@ -60,8 +60,8 @@ type Core struct {
 type Node struct {
 	Sockets        []Socket
 	Name           string
+	IP 	       string
 	Uuid           string
-	IP             string
 	ThreadsPerCore int
 	MaxGHz         float64
 	L1DCache       int

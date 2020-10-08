@@ -361,7 +361,7 @@ func (g *genericScheduler) Schedule(pod *v1.Pod, nodeLister algorithm.NodeLister
 	// Send gRPC request to the corresponding agent
 	klog.Infof("About to Send gRPC request to node: %v, to pin the app in socket: %v\n", host, socket)
 	var conn *grpc.ClientConn
-	conn, err = grpc.Dial(host+":4242", grpc.WithInsecure())
+	conn, err = grpc.Dial(priorities.NameToNode[host].IP+":4242", grpc.WithInsecure())
 	if err != nil {
 		log.Fatalf("did not connect: %s", err)
 	}
