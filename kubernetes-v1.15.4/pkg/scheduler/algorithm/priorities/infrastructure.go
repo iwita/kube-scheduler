@@ -20,7 +20,7 @@ func init() {
 
 	// Build a map [name : Node]
 	NameToNode = make(map[string]Node)
-	klog.Infof("Nodes: %v", NovaNodes.Nodes)
+	//klog.Infof("Nodes: %v", NovaNodes.Nodes)
 	for _, node := range NovaNodes.Nodes {
 		name := node.Name
 		temp := Node{
@@ -45,7 +45,7 @@ func init() {
 		}
 		NameToNode[name] = temp
 	}
-	klog.Infof("Read from yaml: %v", NameToNode["ns51"])
+	//klog.Infof("Read from yaml: %v", NameToNode["ns51"])
 }
 
 type Socket struct {
@@ -60,7 +60,7 @@ type Core struct {
 type Node struct {
 	Sockets        []Socket
 	Name           string
-	IP 	       string
+	IP             string
 	Uuid           string
 	ThreadsPerCore int
 	MaxGHz         float64
@@ -408,7 +408,7 @@ func connectToInfluxDB(cfg Config) (client.Client, error) {
 		klog.Infof("Error while connecting to InfluxDB: %v ", err.Error())
 		return nil, err
 	}
-	klog.Infof("Connected Successfully to InfluxDB")
+	//klog.Infof("Connected Successfully to InfluxDB")
 	return c, nil
 
 }

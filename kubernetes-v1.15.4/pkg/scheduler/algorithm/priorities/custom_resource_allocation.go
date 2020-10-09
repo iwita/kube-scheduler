@@ -19,6 +19,7 @@ package priorities
 import (
 	"encoding/json"
 	"fmt"
+	"strconv"
 	"strings"
 
 	_ "github.com/go-sql-driver/mysql"
@@ -248,7 +249,7 @@ func customResourceScorer(nodeName string) (float64, int, error) {
 		socketId := socket.Id
 
 		// First check the cache
-		nn := nodeName + "" + string(socketId)
+		nn := nodeName + strconv.Itoa(socketId)
 		customcache.LabCache.Mux.Lock()
 		ipc, ok_ipc := customcache.LabCache.Cache[nn]["ipc"]
 		reads, ok_reads := customcache.LabCache.Cache[nn]["mem_read"]
@@ -256,6 +257,7 @@ func customResourceScorer(nodeName string) (float64, int, error) {
 		c6, ok_c6 := customcache.LabCache.Cache[nn]["c6res"]
 		customcache.LabCache.Mux.Unlock()
 		if ok_ipc && ok_reads && ok_writes && ipc != -1 && reads != -1 && writes != -1 {
+			klog.Infof("Found in memory")
 			results = map[string]float64{
 				"ipc":       ipc,
 				"mem_read":  reads,
@@ -270,9 +272,9 @@ func customResourceScorer(nodeName string) (float64, int, error) {
 			}
 		}
 
-		klog.Infof("Node: %v, Calculating score...", nodeName)
+		//klog.Infof("Node: %v, Calculating score...", nodeName)
 		res := calculateScore(scorerInput{metrics: results}, customScoreFn)
-		klog.Infof("Node: %v, Finished calculating score ", nodeName)
+		//klog.Infof("Node: %v, Finished calculating score ", nodeName)
 
 		// Check the core availability
 
@@ -281,7 +283,7 @@ func customResourceScorer(nodeName string) (float64, int, error) {
 		for _, c := range socket.Cores {
 			currCores = append(currCores, c.Id)
 		}
-		klog.Infof("Cores of this socket are: %v\n", currCores) 
+		//klog.Infof("Cores of this socket are: %v\n", currCores)
 		// if c6 does not exist in the database
 		if ok_c6 && c6 != -1 {
 			if c6*float64(len(currCores)) > 1 {
@@ -321,9 +323,9 @@ func customResourceScorer(nodeName string) (float64, int, error) {
 			}
 
 			// Update the cache
-			klog.Infof("Node/Socket: %v/%v, Updating the cache ", nodeName, socketId)
+			//klog.Infof("Node/Socket: %v/%v, Updating the cache ", nodeName, socketId)
 			err = customcache.LabCache.UpdateCache(results, average["c6res"], int32(socketId), nodeName)
-			klog.Infof("Node: %v, Finishing updating the cache.... ", nodeName)
+			//klog.Infof("Node: %v, Finishing updating the cache.... ", nodeName)
 			if err != nil {
 				klog.Infof(err.Error())
 			} else {
@@ -364,6 +366,7 @@ func customResourceScorer(nodeName string) (float64, int, error) {
 	// res = res * float64(speed) * float64(maxFreq)
 
 	// Select Node
-	klog.Infof("Node/Socket %s/%v, has score %v\n", nodeName, winningSocket, maxRes)
+	klog.Infof("Node/Socket %s/%v, has score %v\n IPC: %v, Reads: %v, Writes: %v\n", nodeName, winningSocket, maxRes, customcache.LabCache.Cache[nodeName+strconv.Itoa(winningSocket)]["ipc"],
+		customcache.LabCache.Cache[nodeName+strconv.Itoa(winningSocket)]["mem_read"], customcache.LabCache.Cache[nodeName+strconv.Itoa(winningSocket)]["mem_write"])
 	return maxRes, winningSocket, nil
 }

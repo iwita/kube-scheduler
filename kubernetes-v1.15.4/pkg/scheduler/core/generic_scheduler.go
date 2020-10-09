@@ -425,7 +425,6 @@ func (g *genericScheduler) selectHost(priorityList schedulerapi.HostPriorityList
 	maxScores := findMaxScores(priorityList)
 	ix := int(g.lastNodeIndex % uint64(len(maxScores)))
 	g.lastNodeIndex++
-
 	return priorityList[maxScores[ix]].Host, priorityList[maxScores[ix]].Socket, nil
 }
 
@@ -939,6 +938,9 @@ func PrioritizeNodes(
 		result = append(result, schedulerapi.HostPriority{Host: nodes[i].Name, Score: 0})
 		for j := range priorityConfigs {
 			result[i].Score += results[j][i].Score * float64(priorityConfigs[j].Weight)
+			// TODO
+			// manage this in a better way
+			result[i].Socket = +results[j][i].Socket
 		}
 	}
 
