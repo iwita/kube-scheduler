@@ -330,7 +330,7 @@ func (g *genericScheduler) Schedule(pod *v1.Pod, nodeLister algorithm.NodeLister
 	// }
 
 	// Add pod's information (average metrics to the winning nodes metrics) and cache them
-	podName := pod.ObjectMeta.Name[0 : len(pod.ObjectMeta.Name)-19]
+	//podName := pod.ObjectMeta.Name[0 : len(pod.ObjectMeta.Name)-19]
 	// var win bool
 	// for _, n := range socketNodes {
 
