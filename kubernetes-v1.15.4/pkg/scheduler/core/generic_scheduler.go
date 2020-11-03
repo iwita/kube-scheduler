@@ -31,7 +31,6 @@ import (
 	"k8s.io/klog"
 	"k8s.io/kubernetes/pkg/scheduler/node-agent/info"
 
-	"github.com/iwita/kube-scheduler/customcache"
 	v1 "k8s.io/api/core/v1"
 	policy "k8s.io/api/policy/v1beta1"
 	metav1 "k8s.io/apimachinery/pkg/apis/meta/v1"
@@ -247,16 +246,16 @@ func (g *genericScheduler) Schedule(pod *v1.Pod, nodeLister algorithm.NodeLister
 
 	//start-custom
 	//customcache.LabCache.Mux.Lock()
-	select {
-	// clean the cache if 10 seconds are passed
-	case <-customcache.LabCache.Timeout.C:
-		klog.Infof("Time to erase: %v", time.Now())
-	//customcache.LabCache.Timeout.Stop()
-		customcache.LabCache.CleanCache()
-		// klog.Infof("Cache: %v", customcache.LabCache.Cache)
-	default:
-		klog.Infof("Cache is Valid, Time: %v", customcache.LabCache.Timeout.C)
-	}
+	// select {
+	// // clean the cache if 10 seconds are passed
+	// case <-customcache.LabCache.Timeout.C:
+	// 	klog.Infof("Time to erase: %v", time.Now())
+	// //customcache.LabCache.Timeout.Stop()
+	// 	customcache.LabCache.CleanCache()
+	// 	// klog.Infof("Cache: %v", customcache.LabCache.Cache)
+	// default:
+	// 	klog.Infof("Cache is Valid, Time: %v", customcache.LabCache.Timeout.C)
+	// }
 	//customcache.LabCache.Mux.Unlock()
 	socketPrioritizers := []priorities.PriorityConfig{
 		{
@@ -347,16 +346,16 @@ func (g *genericScheduler) Schedule(pod *v1.Pod, nodeLister algorithm.NodeLister
 	// }
 
 	// Get the number of cores of the winning socket
-	numCores := 0
-	for _, s := range priorities.NameToNode[host].Sockets {
-		if s.Id == socket {
-			numCores = len(s.Cores)
-		} else {
-			continue
-		}
-	}
+	// numCores := 0
+	// for _, s := range priorities.NameToNode[host].Sockets {
+	// 	if s.Id == socket {
+	// 		numCores = len(s.Cores)
+	// 	} else {
+	// 		continue
+	// 	}
+	// }
 
-	customcache.LabCache.AddAppMetrics(priorities.Applications[podName].Metrics, host, int32(socket), numCores)
+	//customcache.LabCache.AddAppMetrics(priorities.Applications[podName].Metrics, host, int32(socket), numCores)
 
 	// Send gRPC request to the corresponding agent
 	klog.Infof("About to Send gRPC request to node: %v, to pin the app in socket: %v\n", host, socket)

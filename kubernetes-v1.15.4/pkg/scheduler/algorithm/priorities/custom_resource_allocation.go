@@ -19,7 +19,6 @@ package priorities
 import (
 	"encoding/json"
 	"fmt"
-	"strconv"
 	"strings"
 
 	_ "github.com/go-sql-driver/mysql"
@@ -249,27 +248,26 @@ func customResourceScorer(nodeName string) (float64, int, error) {
 		socketId := socket.Id
 
 		// First check the cache
-		nn := nodeName + strconv.Itoa(socketId)
-		customcache.LabCache.Mux.Lock()
-		ipc, ok_ipc := customcache.LabCache.Cache[nn]["ipc"]
-		reads, ok_reads := customcache.LabCache.Cache[nn]["mem_read"]
-		writes, ok_writes := customcache.LabCache.Cache[nn]["mem_write"]
-		c6, ok_c6 := customcache.LabCache.Cache[nn]["c6res"]
-		customcache.LabCache.Mux.Unlock()
-		if ok_ipc && ok_reads && ok_writes && ipc != -1 && reads != -1 && writes != -1 {
-			klog.Infof("Found in memory")
-			results = map[string]float64{
-				"ipc":       ipc,
-				"mem_read":  reads,
-				"mem_write": writes,
-				//"c6res":     c6res,
-			}
-		} else { // if nothing exists here read from database
-			results, err = customScoreInfluxDB([]string{"ipc", "mem_read", "mem_write"}, uuid, socketId, numberOfRows, cfg, c)
-			if err != nil {
-				klog.Infof("Error in querying or calculating average for the custom score in the first stage: %v", err.Error())
-				return 0, -1, nil
-			}
+		//nn := nodeName + strconv.Itoa(socketId)
+		// customcache.LabCache.Mux.Lock()
+		// ipc, ok_ipc := customcache.LabCache.Cache[nn]["ipc"]
+		// reads, ok_reads := customcache.LabCache.Cache[nn]["mem_read"]
+		// writes, ok_writes := customcache.LabCache.Cache[nn]["mem_write"]
+		// c6, ok_c6 := customcache.LabCache.Cache[nn]["c6res"]
+		// customcache.LabCache.Mux.Unlock()
+		// if ok_ipc && ok_reads && ok_writes && ipc != -1 && reads != -1 && writes != -1 {
+		// 	klog.Infof("Found in memory")
+		// 	results = map[string]float64{
+		// 		"ipc":       ipc,
+		// 		"mem_read":  reads,
+		// 		"mem_write": writes,
+		// 		//"c6res":     c6res,
+		// 	}
+		// if nothing exists here read from database
+		results, err = customScoreInfluxDB([]string{"ipc", "mem_read", "mem_write"}, uuid, socketId, numberOfRows, cfg, c)
+		if err != nil {
+			klog.Infof("Error in querying or calculating average for the custom score in the first stage: %v", err.Error())
+			return 0, -1, nil
 		}
 
 		//klog.Infof("Node: %v, Calculating score...", nodeName)
@@ -285,53 +283,52 @@ func customResourceScorer(nodeName string) (float64, int, error) {
 		}
 		//klog.Infof("Cores of this socket are: %v\n", currCores)
 		// if c6 does not exist in the database
-		if ok_c6 && c6 != -1 {
-			if c6*float64(len(currCores)) > 1 {
-				sumOfFreeCores++
-			}
-			if sumOfFreeCores < 1 {
-				klog.Infof("Less than 1 node is available\nC6contribution: %v", c6)
-				res = res * c6
-			} else {
-				res = res * 1
-			}
-		} else {
-			// Return the metrics of those cores
-			metrics := []string{"c6res"} // check the c6res for now
-			r, err := queryInfluxDbCores(metrics, uuid, socketId, numberOfRows, cfg, c, currCores)
-			//r, err := queryInfluxDbSocket(metrics, curr_uuid, socket, numberOfRows, cfg, c)
-			if err != nil {
-				klog.Infof("Error in querying or calculating core availability in the first stage: %v", err.Error())
-			}
+		// if ok_c6 && c6 != -1 {
+		// 	if c6*float64(len(currCores)) > 1 {
+		// 		sumOfFreeCores++
+		// 	}
+		// 	if sumOfFreeCores < 1 {
+		// 		klog.Infof("Less than 1 node is available\nC6contribution: %v", c6)
+		// 		res = res * c6
+		// 	} else {
+		// 		res = res * 1
+		// 	}
 
-			// Calculate the average of those metrics
-			average, err := calculateWeightedAverageCores(r, numberOfRows, len(metrics), len(currCores))
-			if err != nil {
-				klog.Infof("Error defining core availability")
-			}
-
-			// Finally check the availability of the socket
-			if average["c6res"]*float64(len(currCores)) > 1 {
-				// klog.Infof("Node's %v, socket %v has C6 sum: %v", nodeName, socketId, average["c6res"]*float64(len(currCores)))
-				sumOfFreeCores++
-			}
-			if sumOfFreeCores < 1 {
-				klog.Infof("Less than 1 node is available\nC6contribution: %v", average["c6res"])
-				res = res * average["c6res"]
-			} else {
-				res = res * 1
-			}
-
-			// Update the cache
-			//klog.Infof("Node/Socket: %v/%v, Updating the cache ", nodeName, socketId)
-			err = customcache.LabCache.UpdateCache(results, average["c6res"], int32(socketId), nodeName)
-			//klog.Infof("Node: %v, Finishing updating the cache.... ", nodeName)
-			if err != nil {
-				klog.Infof(err.Error())
-			} else {
-				// klog.Infof("Cache updated successfully for node: %v, socket: %v", nodeName, socketId)
-			}
+		// Return the metrics of those cores
+		metrics := []string{"c6res"} // check the c6res for now
+		r, err := queryInfluxDbCores(metrics, uuid, socketId, numberOfRows, cfg, c, currCores)
+		//r, err := queryInfluxDbSocket(metrics, curr_uuid, socket, numberOfRows, cfg, c)
+		if err != nil {
+			klog.Infof("Error in querying or calculating core availability in the first stage: %v", err.Error())
 		}
+
+		// Calculate the average of those metrics
+		average, err := calculateWeightedAverageCores(r, numberOfRows, len(metrics), len(currCores))
+		if err != nil {
+			klog.Infof("Error defining core availability")
+		}
+
+		// Finally check the availability of the socket
+		if average["c6res"]*float64(len(currCores)) > 1 {
+			// klog.Infof("Node's %v, socket %v has C6 sum: %v", nodeName, socketId, average["c6res"]*float64(len(currCores)))
+			sumOfFreeCores++
+		}
+		if sumOfFreeCores < 1 {
+			klog.Infof("Less than 1 node is available\nC6contribution: %v", average["c6res"])
+			res = res * average["c6res"]
+		} else {
+			res = res * 1
+		}
+
+		// Update the cache
+		//klog.Infof("Node/Socket: %v/%v, Updating the cache ", nodeName, socketId)
+		//err = customcache.LabCache.UpdateCache(results, average["c6res"], int32(socketId), nodeName)
+		//klog.Infof("Node: %v, Finishing updating the cache.... ", nodeName)
+		// if err != nil {
+		// 	klog.Infof(err.Error())
+		// } else {
+		// 	// klog.Infof("Cache updated successfully for node: %v, socket: %v", nodeName, socketId)
+		// }
 
 		if res > maxRes {
 			maxRes = res
