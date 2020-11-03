@@ -232,7 +232,7 @@ func customResourceScorer(nodeName string) (float64, int, error) {
 	defer c.Close()
 
 	uuid := NameToNode[nodeName].Uuid
-	klog.Infof("Node: %v, uuid: %v", nodeName, uuid)
+	// klog.Infof("Node: %v, uuid: %v", nodeName, uuid)
 
 	// query the last 'time' seconds
 	time := 20
@@ -312,7 +312,7 @@ func customResourceScorer(nodeName string) (float64, int, error) {
 
 			// Finally check the availability of the socket
 			if average["c6res"]*float64(len(currCores)) > 1 {
-				klog.Infof("Node's %v, socket %v has C6 sum: %v", nodeName, socketId, average["c6res"]*float64(len(currCores)))
+				// klog.Infof("Node's %v, socket %v has C6 sum: %v", nodeName, socketId, average["c6res"]*float64(len(currCores)))
 				sumOfFreeCores++
 			}
 			if sumOfFreeCores < 1 {
@@ -329,7 +329,7 @@ func customResourceScorer(nodeName string) (float64, int, error) {
 			if err != nil {
 				klog.Infof(err.Error())
 			} else {
-				klog.Infof("Cache updated successfully for node: %v, socket: %v", nodeName, socketId)
+				// klog.Infof("Cache updated successfully for node: %v, socket: %v", nodeName, socketId)
 			}
 		}
 
@@ -366,7 +366,7 @@ func customResourceScorer(nodeName string) (float64, int, error) {
 	// res = res * float64(speed) * float64(maxFreq)
 
 	// Select Node
-	klog.Infof("Node/Socket %s/%v, has score %v\n IPC: %v, Reads: %v, Writes: %v\n", nodeName, winningSocket, maxRes, customcache.LabCache.Cache[nodeName+strconv.Itoa(winningSocket)]["ipc"],
-		customcache.LabCache.Cache[nodeName+strconv.Itoa(winningSocket)]["mem_read"], customcache.LabCache.Cache[nodeName+strconv.Itoa(winningSocket)]["mem_write"])
+	//klog.Infof("Node/Socket %s/%v, has score %v\n IPC: %v, Reads: %v, Writes: %v\n", nodeName, winningSocket, maxRes, customcache.LabCache.Cache[nodeName+strconv.Itoa(winningSocket)]["ipc"],
+	//	customcache.LabCache.Cache[nodeName+strconv.Itoa(winningSocket)]["mem_read"], customcache.LabCache.Cache[nodeName+strconv.Itoa(winningSocket)]["mem_write"])
 	return maxRes, winningSocket, nil
 }

@@ -24,7 +24,7 @@ import (
 	"time"
 
 	"k8s.io/apimachinery/pkg/util/runtime"
-	"k8s.io/klog"
+	// "k8s.io/klog"
 )
 
 // For any test of the style:
@@ -150,7 +150,7 @@ func JitterUntil(f func(), period time.Duration, jitterFactor float64, sliding b
 
 		func() {
 			defer runtime.HandleCrash()
-			klog.Infof("Scheduler was Called\nTime: %v", time.Now())
+			// klog.Infof("Scheduler was Called\nTime: %v", time.Now())
 			f()
 		}()
 

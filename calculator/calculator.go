@@ -23,6 +23,8 @@ var apps map[string]int = map[string]int{
 	"in-memory-analytics": 47,
 	"data-serving-client": 72,
 	"web-serving-client":  203,
+	"spec-mcf":	288,
+	"spec-lbm": 369,
 }
 
 var normalized []float64
@@ -38,6 +40,8 @@ func main() {
 		appName := s1[0][0 : len(s1[0])-offset]
 		appTime, _ := strconv.Atoi(s1[1])
 		normalized = append(normalized, float64(apps[appName])/float64(appTime))
+                fmt.Printf("App: %v, normalized: %v\n",appName, float64(apps[appName])/float64(appTime))
+
 	}
 	//sort the numbers
 	sort.Float64s(normalized)

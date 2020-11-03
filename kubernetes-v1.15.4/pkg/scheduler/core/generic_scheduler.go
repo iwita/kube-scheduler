@@ -246,18 +246,18 @@ func (g *genericScheduler) Schedule(pod *v1.Pod, nodeLister algorithm.NodeLister
 	// default
 
 	//start-custom
-
-	// select {
-	// // clean the cache if 10 seconds are passed
-	// case <-customcache.LabCache.Timeout.C:
-	// 	klog.Infof("Time to erase: %v", time.Now())
-	// 	//customcache.LabCache.Timeout.Stop()
-	// 	customcache.LabCache.CleanCache()
-	// 	klog.Infof("Cache: %v", customcache.LabCache.Cache)
-	// default:
-	// 	klog.Infof("Cache is Valid, Time: %v", customcache.LabCache.Timeout.C)
-	// }
-
+	//customcache.LabCache.Mux.Lock()
+	select {
+	// clean the cache if 10 seconds are passed
+	case <-customcache.LabCache.Timeout.C:
+		klog.Infof("Time to erase: %v", time.Now())
+	//customcache.LabCache.Timeout.Stop()
+		customcache.LabCache.CleanCache()
+		// klog.Infof("Cache: %v", customcache.LabCache.Cache)
+	default:
+		klog.Infof("Cache is Valid, Time: %v", customcache.LabCache.Timeout.C)
+	}
+	//customcache.LabCache.Mux.Unlock()
 	socketPrioritizers := []priorities.PriorityConfig{
 		{
 			Name:   priorities.CustomRequestedPriority,
@@ -315,7 +315,7 @@ func (g *genericScheduler) Schedule(pod *v1.Pod, nodeLister algorithm.NodeLister
 	// winningSocket := priorities.Sockets[host]
 	// winningUuid := priorities.Nodes[host]
 
-	klog.Infof("Winning node: %v, Socket %v", host, socket)
+	// klog.Infof("Winning node: %v, Socket %v", host, socket)
 
 	// var tmp []string
 	// var socketNodes []string
