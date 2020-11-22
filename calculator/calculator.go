@@ -10,21 +10,21 @@ import (
 )
 
 var apps map[string]int = map[string]int{
-	"scikit-lasso":        69,
-	"scikit-lda":          53,
-	"scikit-ada":          138,
-	"scikit-linregr":      45,
-	"scikit-rfc":          38,
-	"scikit-rfr":          115,
-	"spec-astar":          468,
-	"spec-leslie":         378,
-	"spec-cactus":         780,
-	"spec-sphinx":         592,
+	"scikit-lasso":        55,
+	"scikit-lda":          39,
+	"scikit-ada":          69,
+	"scikit-linregr":      33,
+	"scikit-rfc":          36,
+	"scikit-rfr":          100,
+	"spec-astar":          345,
+	"spec-leslie":         299,
+	"spec-cactus":         479,
+	"spec-sphinx":         466,
 	"in-memory-analytics": 47,
-	"data-serving-client": 72,
+	"data-serving-client": 38,
 	"web-serving-client":  203,
-	"spec-mcf":	288,
-	"spec-lbm": 369,
+	"spec-mcf":            214,
+	"spec-lbm":            349,
 }
 
 var normalized []float64
@@ -40,7 +40,7 @@ func main() {
 		appName := s1[0][0 : len(s1[0])-offset]
 		appTime, _ := strconv.Atoi(s1[1])
 		normalized = append(normalized, float64(apps[appName])/float64(appTime))
-                fmt.Printf("App: %v, normalized: %v\n",appName, float64(apps[appName])/float64(appTime))
+		fmt.Printf("%v %v %v %v\n", appName, float64(apps[appName])/float64(appTime), s1[2], s1[3])
 
 	}
 	//sort the numbers
