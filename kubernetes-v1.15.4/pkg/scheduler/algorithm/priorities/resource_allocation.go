@@ -19,6 +19,7 @@ package priorities
 import (
 	"fmt"
 
+	"github.com/iwita/watchapp/pkg/cache"
 	v1 "k8s.io/api/core/v1"
 	utilfeature "k8s.io/apiserver/pkg/util/feature"
 	"k8s.io/klog"
@@ -36,7 +37,7 @@ type ResourceAllocationPriority struct {
 
 type CustomAllocationPriority struct {
 	Name   string
-	scorer func(nodeName string) (float64, int, error)
+	scorer func(nodeName string) (float64, int, int, *cache.Stress, error)
 }
 
 // PriorityMap priorities nodes according to the resource allocations on the node.
@@ -117,7 +118,8 @@ func (r *CustomAllocationPriority) PriorityMap(
 	//requested.MilliCPU += nodeInfo.NonZeroRequest().MilliCPU
 	//requested.Memory += nodeInfo.NonZeroRequest().Memory
 	var score float64
-	var socket int
+	var socket, socketCoresNum int
+	var stress *cache.Stress
 	// Check if the pod has volumes and this could be added to scorer function for balanced resource allocation.
 	// if len(pod.Spec.Volumes) >= 0 && utilfeature.DefaultFeatureGate.Enabled(features.BalanceAttachedNodeVolumes) && nodeInfo.TransientInfo != nil {
 	// 	score = r.scorer(&requested, &allocatable, true, nodeInfo.TransientInfo.TransNodeInfo.RequestedVolumes, nodeInfo.TransientInfo.TransNodeInfo.AllocatableVolumesCount)
@@ -125,7 +127,7 @@ func (r *CustomAllocationPriority) PriorityMap(
 	// 	score = r.scorer(&requested, &allocatable, false, 0, 0)
 	// }
 
-	score, socket, _ = r.scorer(node.Name)
+	score, socket, socketCoresNum, stress, _ = r.scorer(node.Name)
 
 	// if klog.V(10) {
 	// 	if len(pod.Spec.Volumes) >= 0 && utilfeature.DefaultFeatureGate.Enabled(features.BalanceAttachedNodeVolumes) && nodeInfo.TransientInfo != nil {
@@ -150,9 +152,11 @@ func (r *CustomAllocationPriority) PriorityMap(
 
 	// Added the socket as HostPriority field
 	return schedulerapi.HostPriority{
-		Host:   node.Name,
-		Socket: socket,
-		Score:  float64(score),
+		Host:     node.Name,
+		Socket:   socket,
+		Score:    float64(score),
+		Stress:   stress,
+		NumCores: socketCoresNum,
 	}, nil
 
 	// return schedulerapi.HostPriority{

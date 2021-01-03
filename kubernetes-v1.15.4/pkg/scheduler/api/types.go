@@ -19,6 +19,7 @@ package api
 import (
 	"time"
 
+	"github.com/iwita/watchapp/pkg/cache"
 	v1 "k8s.io/api/core/v1"
 	metav1 "k8s.io/apimachinery/pkg/apis/meta/v1"
 	"k8s.io/apimachinery/pkg/types"
@@ -338,7 +339,9 @@ type HostPriority struct {
 	Socket int
 	// Score associated with the host
 	//Score int
-	Score float64
+	Score    float64
+	Stress   *cache.Stress
+	NumCores int
 }
 
 // type CustomHostPriority struct {

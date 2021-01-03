@@ -24,6 +24,7 @@ import (
 	_ "github.com/go-sql-driver/mysql"
 	client "github.com/influxdata/influxdb1-client/v2"
 	customcache "github.com/iwita/kube-scheduler/customcache"
+	"github.com/iwita/watchapp/pkg/cache"
 	"k8s.io/klog"
 )
 
@@ -124,7 +125,7 @@ func InvalidateCache() {
 	}
 }
 
-func customResourceScorer(nodeName string) (float64, int, error) {
+func customResourceScorer(nodeName string) (float64, int, int, *cache.Stress, error) {
 
 	//InvalidateCache()
 	//klog.Infof("The value of the Ticker: %v", customcache.LabCache.Timeout.C)
@@ -220,12 +221,12 @@ func customResourceScorer(nodeName string) (float64, int, error) {
 	var cfg Config
 	err := readFile(&cfg, "/etc/kubernetes/scheduler-monitoringDB.yaml")
 	if err != nil {
-		return 0, -1, err
+		return 0, -1, -1, nil, err
 	}
 	// Connect to InfluxDB
 	c, err := connectToInfluxDB(cfg)
 	if err != nil {
-		return 0, -1, err
+		return 0, -1, -1, nil, err
 	}
 	// close the connection in the end of execution
 	defer c.Close()
@@ -243,31 +244,14 @@ func customResourceScorer(nodeName string) (float64, int, error) {
 
 	// Calculate the score for each socket of the node
 	maxRes := 0.0
-	var winningSocket int
+	var winningSocket, winningSocketLenCores int
 	for _, socket := range NameToNode[nodeName].Sockets {
 		socketId := socket.Id
 
-		// First check the cache
-		//nn := nodeName + strconv.Itoa(socketId)
-		// customcache.LabCache.Mux.Lock()
-		// ipc, ok_ipc := customcache.LabCache.Cache[nn]["ipc"]
-		// reads, ok_reads := customcache.LabCache.Cache[nn]["mem_read"]
-		// writes, ok_writes := customcache.LabCache.Cache[nn]["mem_write"]
-		// c6, ok_c6 := customcache.LabCache.Cache[nn]["c6res"]
-		// customcache.LabCache.Mux.Unlock()
-		// if ok_ipc && ok_reads && ok_writes && ipc != -1 && reads != -1 && writes != -1 {
-		// 	klog.Infof("Found in memory")
-		// 	results = map[string]float64{
-		// 		"ipc":       ipc,
-		// 		"mem_read":  reads,
-		// 		"mem_write": writes,
-		// 		//"c6res":     c6res,
-		// 	}
-		// if nothing exists here read from database
 		results, err = customScoreInfluxDB([]string{"ipc", "mem_read", "mem_write"}, uuid, socketId, numberOfRows, cfg, c)
 		if err != nil {
 			klog.Infof("Error in querying or calculating average for the custom score in the first stage: %v", err.Error())
-			return 0, -1, nil
+			return 0, -1, -1, nil, err
 		}
 
 		//klog.Infof("Node: %v, Calculating score...", nodeName)
@@ -281,18 +265,6 @@ func customResourceScorer(nodeName string) (float64, int, error) {
 		for _, c := range socket.Cores {
 			currCores = append(currCores, c.Id)
 		}
-		//klog.Infof("Cores of this socket are: %v\n", currCores)
-		// if c6 does not exist in the database
-		// if ok_c6 && c6 != -1 {
-		// 	if c6*float64(len(currCores)) > 1 {
-		// 		sumOfFreeCores++
-		// 	}
-		// 	if sumOfFreeCores < 1 {
-		// 		klog.Infof("Less than 1 node is available\nC6contribution: %v", c6)
-		// 		res = res * c6
-		// 	} else {
-		// 		res = res * 1
-		// 	}
 
 		// Return the metrics of those cores
 		metrics := []string{"c6res"} // check the c6res for now
@@ -333,6 +305,7 @@ func customResourceScorer(nodeName string) (float64, int, error) {
 		if res > maxRes {
 			maxRes = res
 			winningSocket = socketId
+			winningSocketLenCores = len(currCores)
 		}
 		nodeSumOfFreeCores += sumOfFreeCores
 
@@ -365,5 +338,10 @@ func customResourceScorer(nodeName string) (float64, int, error) {
 	// Select Node
 	//klog.Infof("Node/Socket %s/%v, has score %v\n IPC: %v, Reads: %v, Writes: %v\n", nodeName, winningSocket, maxRes, customcache.LabCache.Cache[nodeName+strconv.Itoa(winningSocket)]["ipc"],
 	//	customcache.LabCache.Cache[nodeName+strconv.Itoa(winningSocket)]["mem_read"], customcache.LabCache.Cache[nodeName+strconv.Itoa(winningSocket)]["mem_write"])
-	return maxRes, winningSocket, nil
+	return maxRes, winningSocket, winningSocketLenCores, &cache.Stress{IPC: float32(results["ipc"]),
+		Reads:  results["mem_read"],
+		Writes: results["mem_write"],
+		C6:     float32(results["c6res"] * float64(winningSocketLenCores)),
+		Score:  maxRes,
+	}, nil
 }

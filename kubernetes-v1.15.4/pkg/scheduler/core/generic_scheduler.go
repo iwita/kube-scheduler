@@ -29,8 +29,10 @@ import (
 
 	grpc "google.golang.org/grpc"
 	"k8s.io/klog"
-	"k8s.io/kubernetes/pkg/scheduler/node-agent/info"
 
+	"github.com/iwita/node-agent/info"
+	"github.com/iwita/watchapp/pkg/cache"
+	watchgrpc "github.com/iwita/watchapp/pkg/watchgrpc/watchpb"
 	v1 "k8s.io/api/core/v1"
 	policy "k8s.io/api/policy/v1beta1"
 	metav1 "k8s.io/apimachinery/pkg/apis/meta/v1"
@@ -283,7 +285,7 @@ func (g *genericScheduler) Schedule(pod *v1.Pod, nodeLister algorithm.NodeLister
 	// -----------------------------------------------------
 	//trace.Step("Selecting socket")
 	//hosts, err := g.selectHostOnWinningSocket(priorityList)
-	host, socket, err := g.selectHost(priorityList)
+	host, socket, numCores, stress, err := g.selectHost(priorityList)
 	//declare a subset of the snapshot of all available nodes
 	// create a new map, containing only the subset of the nodes
 	//var winningSocketNodes map[string]*schedulernodeinfo.NodeInfo
@@ -356,25 +358,52 @@ func (g *genericScheduler) Schedule(pod *v1.Pod, nodeLister algorithm.NodeLister
 	// }
 
 	//customcache.LabCache.AddAppMetrics(priorities.Applications[podName].Metrics, host, int32(socket), numCores)
+	var conn *grpc.ClientConn
+
+	// Send gRPC request to the MaaS component
+	conn, err = grpc.Dial("TODO"+":4444", grpc.WithInsecure())
+	if err != nil {
+		log.Fatalf("did not connect: %s", err)
+	}
+	defer conn.Close()
+	c := watchgrpc.NewMaaSClient(conn)
+	// TODO add stress to be returned from the priority function
+	response, err := c.StoreInfo(context.Background(), &watchgrpc.ScheduleResult{
+		AppID:    pod.Name,
+		AppLabel: pod.Labels["app"],
+		// Architecture: node.Labels["architecture"],
+		Stress: &watchgrpc.Stress{Ipc: stress.IPC,
+			Reads:  stress.Reads,
+			Writes: stress.Writes,
+			C6:     stress.C6,
+			Stress: stress.Score,
+		},
+		SocketId: int32(socket),
+		NumCores: int32(numCores),
+		Uuid:     priorities.NameToNode[host].Uuid,
+	})
+	if err != nil {
+		log.Fatalf("Error when calling StoreInfo: %s", err)
+	}
+	log.Printf("Response from server: %s", response.Ok)
 
 	// Send gRPC request to the corresponding agent
 	klog.Infof("About to Send gRPC request to node: %v, to pin the app in socket: %v\n", host, socket)
-	var conn *grpc.ClientConn
 	conn, err = grpc.Dial(priorities.NameToNode[host].IP+":4242", grpc.WithInsecure())
 	if err != nil {
 		log.Fatalf("did not connect: %s", err)
 	}
 	defer conn.Close()
-	c := info.NewTasksetAdvisorClient(conn)
-	response, err := c.Pin(context.Background(), &info.Info{
+	c2 := info.NewTasksetAdvisorClient(conn)
+	response2, err := c2.Pin(context.Background(), &info.Info{
 		Socket: &info.SocketType{SocketId: int32(socket)},
-		Pod:    &info.PodType{PodName: pod.ObjectMeta.Name},
+		Pod:    &info.PodType{PodName: pod.Name},
 	})
 
 	if err != nil {
 		log.Fatalf("Error when calling Pin: %s", err)
 	}
-	log.Printf("Response from server: %s", response.Body)
+	log.Printf("Response from server: %s", response2.Body)
 
 	// End of gRPC client
 
@@ -416,15 +445,18 @@ func findMaxScores(priorityList schedulerapi.HostPriorityList) []int {
 
 // selectHost takes a prioritized list of nodes and then picks one
 // in a round-robin manner from the nodes that had the highest score.
-func (g *genericScheduler) selectHost(priorityList schedulerapi.HostPriorityList) (string, int, error) {
+func (g *genericScheduler) selectHost(priorityList schedulerapi.HostPriorityList) (string, int, int, *cache.Stress, error) {
 	if len(priorityList) == 0 {
-		return "", -1, fmt.Errorf("empty priorityList")
+		return "", -1, -1, nil, fmt.Errorf("empty priorityList")
 	}
 
 	maxScores := findMaxScores(priorityList)
 	ix := int(g.lastNodeIndex % uint64(len(maxScores)))
 	g.lastNodeIndex++
-	return priorityList[maxScores[ix]].Host, priorityList[maxScores[ix]].Socket, nil
+	return priorityList[maxScores[ix]].Host,
+		priorityList[maxScores[ix]].Socket,
+		priorityList[maxScores[ix]].NumCores,
+		priorityList[maxScores[ix]].Stress, nil
 }
 
 //------------------------------------------------------------------------------------------------

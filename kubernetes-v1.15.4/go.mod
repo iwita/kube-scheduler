@@ -26,7 +26,7 @@ require (
 	github.com/boltdb/bolt v1.3.1 // indirect
 	github.com/cespare/prettybench v0.0.0-20150116022406-03b8cfe5406c
 	github.com/chai2010/gettext-go v0.0.0-20160711120539-c6fed771bfd5
-	github.com/client9/misspell v0.0.0-20170928000206-9ce5d979ffda
+	github.com/client9/misspell v0.3.4
 	github.com/cloudflare/cfssl v0.0.0-20180726162950-56268a613adf
 	github.com/clusterhq/flocker-go v0.0.0-20160920122132-2b8b7259d313
 	github.com/codedellemc/goscaleio v0.0.0-20170830184815-20e2ce2cf885
@@ -68,15 +68,15 @@ require (
 	github.com/godbus/dbus v0.0.0-20151105175453-c7fdd8b5cd55
 	github.com/gogo/protobuf v1.3.1
 	github.com/golang/groupcache v0.0.0-20160516000752-02826c3e7903
-	github.com/golang/mock v0.0.0-20160127222235-bd3c8e81be01
-	github.com/golang/protobuf v1.4.2
+	github.com/golang/mock v1.1.1
+	github.com/golang/protobuf v1.4.3
 	github.com/golangplus/bytes v0.0.0-20160111154220-45c989fe5450 // indirect
 	github.com/golangplus/fmt v0.0.0-20150411045040-2a5d6d7d2995 // indirect
 	github.com/golangplus/testing v0.0.0-20180327235837-af21d9c3145e // indirect
 	github.com/google/cadvisor v0.33.2-0.20190411163913-9db8c7dee20a
 	github.com/google/certificate-transparency-go v1.0.21 // indirect
-	github.com/google/gofuzz v0.0.0-20170612174753-24818f796faf
-	github.com/googleapis/gnostic v0.0.0-20170729233727-0c5108395e2d
+	github.com/google/gofuzz v1.2.0
+	github.com/googleapis/gnostic v0.5.3
 	github.com/gophercloud/gophercloud v0.0.0-20190126172459-c818fa66e4c8
 	github.com/gorilla/context v1.1.1 // indirect
 	github.com/gorilla/mux v1.7.0 // indirect
@@ -86,11 +86,12 @@ require (
 	github.com/heketi/rest v0.0.0-20180404230133-aa6a65207413 // indirect
 	github.com/heketi/tests v0.0.0-20151005000721-f3775cbcefd6 // indirect
 	github.com/heketi/utils v0.0.0-20170317161834-435bc5bdfa64 // indirect
-	github.com/influxdata/influxdb1-client v0.0.0-20200515024757-02f0bf5dbca3
+	github.com/influxdata/influxdb1-client v0.0.0-20200827194710-b269163b24ab
 	github.com/iwita/kube-scheduler v0.0.0-20200925115751-ea20621cc941
-	github.com/iwita/node-agent v0.0.0-20200929075820-8321abd74e49 // indirect
+	github.com/iwita/node-agent v0.0.0-20200929075820-8321abd74e49
+	github.com/iwita/watchapp v0.0.0-20201221154558-68e7a437f805
 	github.com/jonboulle/clockwork v0.0.0-20141017032234-72f9bd7c4e0c
-	github.com/json-iterator/go v0.0.0-20180701071628-ab8a2e0c74be
+	github.com/json-iterator/go v1.1.10
 	github.com/jstemmer/go-junit-report v0.0.0-20190106144839-af01ea7f8024
 	github.com/jteeuwen/go-bindata v0.0.0-20151023091102-a0ff2567cfb7
 	github.com/kardianos/osext v0.0.0-20150410034420-8fef92e41e22
@@ -130,7 +131,7 @@ require (
 	github.com/pmezard/go-difflib v1.0.0
 	github.com/pquerna/ffjson v0.0.0-20180717144149-af8b230fcd20 // indirect
 	github.com/prometheus/client_golang v0.9.2
-	github.com/prometheus/client_model v0.0.0-20180712105110-5c3871d89910
+	github.com/prometheus/client_model v0.0.0-20190812154241-14fe0d1b01d4
 	github.com/prometheus/common v0.0.0-20181126121408-4724e9255275
 	github.com/quobyte/api v0.1.2
 	github.com/robfig/cron v0.0.0-20170309132418-df38d32658d8
@@ -143,10 +144,10 @@ require (
 	github.com/spf13/cast v0.0.0-20160730092037-e31f36ffc91a // indirect
 	github.com/spf13/cobra v0.0.0-20180319062004-c439c4fa0937
 	github.com/spf13/jwalterweatherman v0.0.0-20160311093646-33c24e77fb80 // indirect
-	github.com/spf13/pflag v1.0.1
+	github.com/spf13/pflag v1.0.5
 	github.com/spf13/viper v0.0.0-20160820190039-7fb2782df3d8
 	github.com/storageos/go-api v0.0.0-20180912212459-343b3eff91fc
-	github.com/stretchr/testify v1.2.2
+	github.com/stretchr/testify v1.5.1
 	github.com/syndtr/gocapability v0.0.0-20160928074757-e7cb7fa329f4 // indirect
 	github.com/urfave/negroni v1.0.0 // indirect
 	github.com/vishvananda/netlink v0.0.0-20171020171820-b2de5d10e38e
@@ -155,25 +156,29 @@ require (
 	github.com/vmware/photon-controller-go-sdk v0.0.0-20170310013346-4a435daef6cc
 	github.com/xanzy/go-cloudstack v0.0.0-20160728180336-1e2cbf647e57
 	github.com/xlab/handysort v0.0.0-20150421192137-fb3537ed64a1 // indirect
-	golang.org/x/crypto v0.0.0-20181025213731-e84da0312774
-	golang.org/x/lint v0.0.0-20181217174547-8f45f776aaf1
-	golang.org/x/net v0.0.0-20200927032502-5d4f70055728
-	golang.org/x/oauth2 v0.0.0-20190402181905-9f3314589c9a
-	golang.org/x/sys v0.0.0-20200923182605-d9f96fdee20d
-	golang.org/x/time v0.0.0-20161028155119-f51c12702a4d
-	golang.org/x/tools v0.0.0-20190328211700-ab21143f2384
+	golang.org/x/crypto v0.0.0-20201217014255-9d1352758620
+	golang.org/x/lint v0.0.0-20190313153728-d0100b6bd8b3
+	golang.org/x/net v0.0.0-20201216054612-986b41b23924
+	golang.org/x/oauth2 v0.0.0-20201208152858-08078c50e5b5
+	golang.org/x/sys v0.0.0-20201221093633-bc327ba9c2f0
+	golang.org/x/text v0.3.4 // indirect
+	golang.org/x/time v0.0.0-20201208040808-7e3f01d25324
+	golang.org/x/tools v0.0.0-20190524140312-2c0ae7006135
 	gonum.org/v1/gonum v0.0.0-20190331200053-3d26580ed485
 	google.golang.org/api v0.0.0-20181220000619-583d854617af
-	google.golang.org/grpc v1.32.0
+	google.golang.org/appengine v1.6.7 // indirect
+	google.golang.org/genproto v0.0.0-20201214200347-8c77b98c765d // indirect
+	google.golang.org/grpc v1.34.0
 	gopkg.in/gcfg.v1 v1.2.0
+	gopkg.in/inf.v0 v0.9.1 // indirect
 	gopkg.in/square/go-jose.v2 v2.0.0-20180411045311-89060dee6a84
-	gopkg.in/yaml.v2 v2.2.1
-	k8s.io/api v0.0.0
+	gopkg.in/yaml.v2 v2.4.0
+	k8s.io/api v0.20.1
 	k8s.io/apiextensions-apiserver v0.0.0
-	k8s.io/apimachinery v0.0.0
+	k8s.io/apimachinery v0.20.1
 	k8s.io/apiserver v0.0.0
 	k8s.io/cli-runtime v0.0.0
-	k8s.io/client-go v0.0.0
+	k8s.io/client-go v1.5.1
 	k8s.io/cloud-provider v0.0.0
 	k8s.io/cluster-bootstrap v0.0.0
 	k8s.io/code-generator v0.0.0
@@ -193,9 +198,9 @@ require (
 	k8s.io/metrics v0.0.0
 	k8s.io/repo-infra v0.0.0-20181204233714-00fe14e3d1a3
 	k8s.io/sample-apiserver v0.0.0
-	k8s.io/utils v0.0.0-20190221042446-c2654d5206da
+	k8s.io/utils v0.0.0-20201110183641-67b214c5f920
 	sigs.k8s.io/kustomize v2.0.3+incompatible
-	sigs.k8s.io/yaml v1.1.0
+	sigs.k8s.io/yaml v1.2.0
 	vbom.ml/util v0.0.0-20160121211510-db5cfe13f5cc
 )
 
@@ -283,7 +288,7 @@ replace (
 	github.com/golang/glog => github.com/golang/glog v0.0.0-20160126235308-23def4e6c14b
 	github.com/golang/groupcache => github.com/golang/groupcache v0.0.0-20160516000752-02826c3e7903
 	github.com/golang/mock => github.com/golang/mock v0.0.0-20160127222235-bd3c8e81be01
-	github.com/golang/protobuf => github.com/golang/protobuf v1.2.0
+	// github.com/golang/protobuf => github.com/golang/protobuf v1.2.0
 	github.com/golangplus/bytes => github.com/golangplus/bytes v0.0.0-20160111154220-45c989fe5450
 	github.com/golangplus/fmt => github.com/golangplus/fmt v0.0.0-20150411045040-2a5d6d7d2995
 	github.com/golangplus/testing => github.com/golangplus/testing v0.0.0-20180327235837-af21d9c3145e
@@ -420,7 +425,7 @@ replace (
 	google.golang.org/api => google.golang.org/api v0.0.0-20181220000619-583d854617af
 	google.golang.org/appengine => google.golang.org/appengine v1.5.0
 	google.golang.org/genproto => google.golang.org/genproto v0.0.0-20170731182057-09f6ed296fc6
-	google.golang.org/grpc => google.golang.org/grpc v1.13.0
+	// google.golang.org/grpc => google.golang.org/grpc v1.32.0
 	gopkg.in/check.v1 => gopkg.in/check.v1 v0.0.0-20161208181325-20d25e280405
 	gopkg.in/fsnotify.v1 => gopkg.in/fsnotify.v1 v1.4.7
 	gopkg.in/gcfg.v1 => gopkg.in/gcfg.v1 v1.2.0
