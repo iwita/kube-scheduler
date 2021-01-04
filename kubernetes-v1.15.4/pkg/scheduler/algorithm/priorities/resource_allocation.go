@@ -37,7 +37,7 @@ type ResourceAllocationPriority struct {
 
 type CustomAllocationPriority struct {
 	Name   string
-	scorer func(nodeName string) (float64, int, int, *cache.Stress, error)
+	scorer func(nodeName string, pod *v1.Pod) (float64, int, int, *cache.Stress, float64, int32, error)
 }
 
 // PriorityMap priorities nodes according to the resource allocations on the node.
@@ -117,8 +117,9 @@ func (r *CustomAllocationPriority) PriorityMap(
 
 	//requested.MilliCPU += nodeInfo.NonZeroRequest().MilliCPU
 	//requested.Memory += nodeInfo.NonZeroRequest().Memory
-	var score float64
+	var score, finalScore float64
 	var socket, socketCoresNum int
+	var time int32
 	var stress *cache.Stress
 	// Check if the pod has volumes and this could be added to scorer function for balanced resource allocation.
 	// if len(pod.Spec.Volumes) >= 0 && utilfeature.DefaultFeatureGate.Enabled(features.BalanceAttachedNodeVolumes) && nodeInfo.TransientInfo != nil {
@@ -127,7 +128,7 @@ func (r *CustomAllocationPriority) PriorityMap(
 	// 	score = r.scorer(&requested, &allocatable, false, 0, 0)
 	// }
 
-	score, socket, socketCoresNum, stress, _ = r.scorer(node.Name)
+	score, socket, socketCoresNum, stress, finalScore, time, _ = r.scorer(node.Name, pod)
 
 	// if klog.V(10) {
 	// 	if len(pod.Spec.Volumes) >= 0 && utilfeature.DefaultFeatureGate.Enabled(features.BalanceAttachedNodeVolumes) && nodeInfo.TransientInfo != nil {
@@ -152,11 +153,13 @@ func (r *CustomAllocationPriority) PriorityMap(
 
 	// Added the socket as HostPriority field
 	return schedulerapi.HostPriority{
-		Host:     node.Name,
-		Socket:   socket,
-		Score:    float64(score),
-		Stress:   stress,
-		NumCores: socketCoresNum,
+		Host:       node.Name,
+		Socket:     socket,
+		Score:      float64(score),
+		Stress:     stress,
+		NumCores:   socketCoresNum,
+		Time:       time,
+		FinalScore: finalScore,
 	}, nil
 
 	// return schedulerapi.HostPriority{

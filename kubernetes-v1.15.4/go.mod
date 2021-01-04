@@ -64,7 +64,7 @@ require (
 	github.com/go-openapi/strfmt v0.17.0
 	github.com/go-openapi/validate v0.18.0
 	github.com/go-ozzo/ozzo-validation v3.5.0+incompatible // indirect
-	github.com/go-sql-driver/mysql v1.5.0
+	github.com/go-sql-driver/mysql v1.5.0 // indirect
 	github.com/godbus/dbus v0.0.0-20151105175453-c7fdd8b5cd55
 	github.com/gogo/protobuf v1.3.1
 	github.com/golang/groupcache v0.0.0-20160516000752-02826c3e7903
@@ -86,10 +86,11 @@ require (
 	github.com/heketi/rest v0.0.0-20180404230133-aa6a65207413 // indirect
 	github.com/heketi/tests v0.0.0-20151005000721-f3775cbcefd6 // indirect
 	github.com/heketi/utils v0.0.0-20170317161834-435bc5bdfa64 // indirect
+	github.com/influxdata/influxdb-client-go/v2 v2.2.1 // indirect
 	github.com/influxdata/influxdb1-client v0.0.0-20200827194710-b269163b24ab
 	github.com/iwita/kube-scheduler v0.0.0-20200925115751-ea20621cc941
 	github.com/iwita/node-agent v0.0.0-20200929075820-8321abd74e49
-	github.com/iwita/watchapp v0.0.0-20201221154558-68e7a437f805
+	github.com/iwita/watchapp v0.0.0-20210104082748-dc4856d76e96
 	github.com/jonboulle/clockwork v0.0.0-20141017032234-72f9bd7c4e0c
 	github.com/json-iterator/go v1.1.10
 	github.com/jstemmer/go-junit-report v0.0.0-20190106144839-af01ea7f8024
@@ -97,7 +98,6 @@ require (
 	github.com/kardianos/osext v0.0.0-20150410034420-8fef92e41e22
 	github.com/karrick/godirwalk v1.7.5 // indirect
 	github.com/kr/fs v0.0.0-20131111012553-2788f0dbd169 // indirect
-	github.com/kr/pretty v0.0.0-20140812000539-f31442d60e51 // indirect
 	github.com/kr/text v0.0.0-20130911015532-6807e777504f // indirect
 	github.com/libopenstorage/openstorage v0.0.0-20170906232338-093a0c388875
 	github.com/liggitt/tabwriter v0.0.0-20181228230101-89fcab3d43de
@@ -126,7 +126,7 @@ require (
 	github.com/opencontainers/selinux v0.0.0-20170621221121-4a2974bf1ee9
 	github.com/pborman/uuid v1.2.0
 	github.com/pelletier/go-toml v1.2.0 // indirect
-	github.com/pkg/errors v0.8.0
+	github.com/pkg/errors v0.9.1
 	github.com/pkg/sftp v0.0.0-20160930220758-4d0e916071f6 // indirect
 	github.com/pmezard/go-difflib v1.0.0
 	github.com/pquerna/ffjson v0.0.0-20180717144149-af8b230fcd20 // indirect
@@ -147,7 +147,7 @@ require (
 	github.com/spf13/pflag v1.0.5
 	github.com/spf13/viper v0.0.0-20160820190039-7fb2782df3d8
 	github.com/storageos/go-api v0.0.0-20180912212459-343b3eff91fc
-	github.com/stretchr/testify v1.5.1
+	github.com/stretchr/testify v1.6.1
 	github.com/syndtr/gocapability v0.0.0-20160928074757-e7cb7fa329f4 // indirect
 	github.com/urfave/negroni v1.0.0 // indirect
 	github.com/vishvananda/netlink v0.0.0-20171020171820-b2de5d10e38e
@@ -163,12 +163,13 @@ require (
 	golang.org/x/sys v0.0.0-20201221093633-bc327ba9c2f0
 	golang.org/x/text v0.3.4 // indirect
 	golang.org/x/time v0.0.0-20201208040808-7e3f01d25324
-	golang.org/x/tools v0.0.0-20190524140312-2c0ae7006135
+	golang.org/x/tools v0.0.0-20191125144606-a911d9008d1f
 	gonum.org/v1/gonum v0.0.0-20190331200053-3d26580ed485
 	google.golang.org/api v0.0.0-20181220000619-583d854617af
 	google.golang.org/appengine v1.6.7 // indirect
 	google.golang.org/genproto v0.0.0-20201214200347-8c77b98c765d // indirect
 	google.golang.org/grpc v1.34.0
+	google.golang.org/grpc/examples v0.0.0-20201226181154-53788aa5dcb4 // indirect
 	gopkg.in/gcfg.v1 v1.2.0
 	gopkg.in/inf.v0 v0.9.1 // indirect
 	gopkg.in/square/go-jose.v2 v2.0.0-20180411045311-89060dee6a84

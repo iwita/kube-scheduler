@@ -339,9 +339,11 @@ type HostPriority struct {
 	Socket int
 	// Score associated with the host
 	//Score int
-	Score    float64
-	Stress   *cache.Stress
-	NumCores int
+	Score      float64
+	FinalScore float64
+	Time       int32
+	Stress     *cache.Stress
+	NumCores   int
 }
 
 // type CustomHostPriority struct {

@@ -17,14 +17,20 @@ limitations under the License.
 package priorities
 
 import (
+	"context"
 	"encoding/json"
 	"fmt"
+	"log"
 	"strings"
 
-	_ "github.com/go-sql-driver/mysql"
+	watchgrpc "github.com/iwita/watchapp/pkg/watchgrpc/watchpb"
+
+	grpc "google.golang.org/grpc"
+
 	client "github.com/influxdata/influxdb1-client/v2"
 	customcache "github.com/iwita/kube-scheduler/customcache"
 	"github.com/iwita/watchapp/pkg/cache"
+	v1 "k8s.io/api/core/v1"
 	"k8s.io/klog"
 )
 
@@ -125,7 +131,7 @@ func InvalidateCache() {
 	}
 }
 
-func customResourceScorer(nodeName string) (float64, int, int, *cache.Stress, error) {
+func customResourceScorer(nodeName string, pod *v1.Pod) (float64, int, int, *cache.Stress, float64, int32, error) {
 
 	//InvalidateCache()
 	//klog.Infof("The value of the Ticker: %v", customcache.LabCache.Timeout.C)
@@ -221,12 +227,12 @@ func customResourceScorer(nodeName string) (float64, int, int, *cache.Stress, er
 	var cfg Config
 	err := readFile(&cfg, "/etc/kubernetes/scheduler-monitoringDB.yaml")
 	if err != nil {
-		return 0, -1, -1, nil, err
+		return 0, -1, -1, nil, 0, 0, err
 	}
 	// Connect to InfluxDB
 	c, err := connectToInfluxDB(cfg)
 	if err != nil {
-		return 0, -1, -1, nil, err
+		return 0, -1, -1, nil, 0, 0, err
 	}
 	// close the connection in the end of execution
 	defer c.Close()
@@ -251,7 +257,7 @@ func customResourceScorer(nodeName string) (float64, int, int, *cache.Stress, er
 		results, err = customScoreInfluxDB([]string{"ipc", "mem_read", "mem_write"}, uuid, socketId, numberOfRows, cfg, c)
 		if err != nil {
 			klog.Infof("Error in querying or calculating average for the custom score in the first stage: %v", err.Error())
-			return 0, -1, -1, nil, err
+			return 0, -1, -1, nil, 0, 0, err
 		}
 
 		//klog.Infof("Node: %v, Calculating score...", nodeName)
@@ -338,10 +344,38 @@ func customResourceScorer(nodeName string) (float64, int, int, *cache.Stress, er
 	// Select Node
 	//klog.Infof("Node/Socket %s/%v, has score %v\n IPC: %v, Reads: %v, Writes: %v\n", nodeName, winningSocket, maxRes, customcache.LabCache.Cache[nodeName+strconv.Itoa(winningSocket)]["ipc"],
 	//	customcache.LabCache.Cache[nodeName+strconv.Itoa(winningSocket)]["mem_read"], customcache.LabCache.Cache[nodeName+strconv.Itoa(winningSocket)]["mem_write"])
+
+	// send grpc request in order to estimate time and stress
+	//customcache.LabCache.AddAppMetrics(priorities.Applications[podName].Metrics, host, int32(socket), numCores)
+	var conn *grpc.ClientConn
+
+	// Send gRPC request to the MaaS component
+	conn, err = grpc.Dial("TODO"+":4444", grpc.WithInsecure())
+	if err != nil {
+		log.Fatalf("did not connect: %s", err)
+	}
+	defer conn.Close()
+	watchAppClient := watchgrpc.NewMaaSClient(conn)
+	response, err := watchAppClient.EstimateTimeAndDeltaStress(context.Background(), &watchgrpc.MaasMessage{
+		AppID:    pod.Name,
+		AppLabel: pod.Labels["app"],
+		NodeName: nodeName,
+		// Architecture: node.Labels["architecture"],
+		Stress: &watchgrpc.Stress{Ipc: float32(results["ipc"]),
+			Reads:  results["mem_read"],
+			Writes: results["mem_write"],
+			C6:     float32(results["c6res"]),
+			Stress: maxRes,
+		},
+	})
+	if err != nil {
+		fmt.Printf("An error occurred: %v\n", err)
+	}
+
 	return maxRes, winningSocket, winningSocketLenCores, &cache.Stress{IPC: float32(results["ipc"]),
 		Reads:  results["mem_read"],
 		Writes: results["mem_write"],
 		C6:     float32(results["c6res"] * float64(winningSocketLenCores)),
 		Score:  maxRes,
-	}, nil
+	}, response.FinalStress.Stress, response.Time, nil
 }
