@@ -90,6 +90,7 @@ require (
 	github.com/influxdata/influxdb1-client v0.0.0-20200827194710-b269163b24ab
 	github.com/iwita/kube-scheduler v0.0.0-20200925115751-ea20621cc941
 	github.com/iwita/node-agent v0.0.0-20200929075820-8321abd74e49
+	github.com/iwita/pareto v0.0.0-20210105170838-c0a78e30a0ab
 	github.com/iwita/watchapp v0.0.0-20210104082748-dc4856d76e96
 	github.com/jonboulle/clockwork v0.0.0-20141017032234-72f9bd7c4e0c
 	github.com/json-iterator/go v1.1.10

@@ -31,6 +31,7 @@ import (
 	"k8s.io/klog"
 
 	"github.com/iwita/node-agent/info"
+	"github.com/iwita/pareto/pareto"
 	"github.com/iwita/watchapp/pkg/cache"
 	watchgrpc "github.com/iwita/watchapp/pkg/watchgrpc/watchpb"
 	v1 "k8s.io/api/core/v1"
@@ -285,7 +286,7 @@ func (g *genericScheduler) Schedule(pod *v1.Pod, nodeLister algorithm.NodeLister
 	// -----------------------------------------------------
 	//trace.Step("Selecting socket")
 	//hosts, err := g.selectHostOnWinningSocket(priorityList)
-	host, socket, numCores, stress, err := g.selectHost(priorityList)
+	host, socket, numCores, stress, _, _, err := g.selectHost(priorityList)
 	//declare a subset of the snapshot of all available nodes
 	// create a new map, containing only the subset of the nodes
 	//var winningSocketNodes map[string]*schedulernodeinfo.NodeInfo
@@ -427,6 +428,19 @@ func (g *genericScheduler) Predicates() map[string]predicates.FitPredicate {
 	return g.predicates
 }
 
+func findParetoFront(priorityList schedulerapi.HostPriorityList) []int {
+	m := make(map[int][2]float64, len(priorityList))
+	for idx, it := range priorityList {
+		m[idx] = [2]float64{float64(it.Time), it.FinalScore}
+	}
+	p, err := pareto.New(m)
+	if err != nil {
+		// then return the best init score
+		return findMaxScores(priorityList)
+	}
+	return p.Exec()
+}
+
 // findMaxScores returns the indexes of nodes in the "priorityList" that has the highest "Score".
 func findMaxScores(priorityList schedulerapi.HostPriorityList) []int {
 	maxScoreIndexes := make([]int, 0, len(priorityList)/2)
@@ -445,9 +459,9 @@ func findMaxScores(priorityList schedulerapi.HostPriorityList) []int {
 
 // selectHost takes a prioritized list of nodes and then picks one
 // in a round-robin manner from the nodes that had the highest score.
-func (g *genericScheduler) selectHost(priorityList schedulerapi.HostPriorityList) (string, int, int, *cache.Stress, error) {
+func (g *genericScheduler) selectHost(priorityList schedulerapi.HostPriorityList) (string, int, int, *cache.Stress, float64, int32, error) {
 	if len(priorityList) == 0 {
-		return "", -1, -1, nil, fmt.Errorf("empty priorityList")
+		return "", -1, -1, nil, -1, -1, fmt.Errorf("empty priorityList")
 	}
 
 	maxScores := findMaxScores(priorityList)
@@ -456,7 +470,9 @@ func (g *genericScheduler) selectHost(priorityList schedulerapi.HostPriorityList
 	return priorityList[maxScores[ix]].Host,
 		priorityList[maxScores[ix]].Socket,
 		priorityList[maxScores[ix]].NumCores,
-		priorityList[maxScores[ix]].Stress, nil
+		priorityList[maxScores[ix]].Stress,
+		priorityList[maxScores[ix]].FinalScore,
+		priorityList[maxScores[ix]].Time, nil
 }
 
 //------------------------------------------------------------------------------------------------

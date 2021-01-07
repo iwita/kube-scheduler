@@ -285,6 +285,10 @@ github.com/iwita/kube-scheduler v0.0.0-20200925115751-ea20621cc941 h1:/gQivlTq+q
 github.com/iwita/kube-scheduler v0.0.0-20200925115751-ea20621cc941/go.mod h1:aRvokpQlxArgPHMKU1uXJ4p7cj1EnASm4OK880rgfqc=
 github.com/iwita/node-agent v0.0.0-20200929075820-8321abd74e49 h1:dvZo/VM8HGW/GAfv0XZmYptdcF2OnlqEniQb/+RFpL0=
 github.com/iwita/node-agent v0.0.0-20200929075820-8321abd74e49/go.mod h1:LLisDxfiKFnCPrM1NvCc7iLL0eMver+6J7XwZ5Ycofs=
+github.com/iwita/pareto v0.0.0-20210105170313-344c762b9c95 h1:GJJ+CBifWagXAAC2KYxgsSyCPWGIOKO9w40nFi4gBj0=
+github.com/iwita/pareto v0.0.0-20210105170313-344c762b9c95/go.mod h1:JZhpTNqffj7ZHn+i47hqn7FUqxdEDVEmE/toUpRFGPs=
+github.com/iwita/pareto v0.0.0-20210105170838-c0a78e30a0ab h1:verGft5MvR4VFak7nZ3WM8ncJ9kmZj9I3cYpKFtoqKw=
+github.com/iwita/pareto v0.0.0-20210105170838-c0a78e30a0ab/go.mod h1:JZhpTNqffj7ZHn+i47hqn7FUqxdEDVEmE/toUpRFGPs=
 github.com/iwita/watchapp v0.0.0-20201220184203-6a13e94e60d6 h1:1yDOpcK2ku5Jz5wQMOFvnVPpVx8qDb9V8jTm1Tp8/8Y=
 github.com/iwita/watchapp v0.0.0-20201220184203-6a13e94e60d6/go.mod h1:GU031/ss8ZekZvTTf/DhhsQji05NvMmm4qhRvCJd/hg=
 github.com/iwita/watchapp v0.0.0-20201221140445-495a09a1b49a h1:j6AZkSRVoNTTDFN5GtEIRSZciUdmtrzb6z+qd8J5ans=
