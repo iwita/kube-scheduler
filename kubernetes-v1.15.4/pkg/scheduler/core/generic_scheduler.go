@@ -281,86 +281,13 @@ func (g *genericScheduler) Schedule(pod *v1.Pod, nodeLister algorithm.NodeLister
 	metrics.SchedulingLatency.WithLabelValues(metrics.PriorityEvaluation).Observe(metrics.SinceInSeconds(startPriorityEvalTime))
 	metrics.DeprecatedSchedulingLatency.WithLabelValues(metrics.PriorityEvaluation).Observe(metrics.SinceInSeconds(startPriorityEvalTime))
 
-	// -----------------------------------------------------
-	// ------------------START-CUSTOM-----------------------
-	// -----------------------------------------------------
-	//trace.Step("Selecting socket")
-	//hosts, err := g.selectHostOnWinningSocket(priorityList)
+	// Select the host based on the pareto solver
+	// pareto front is calculated in selectHost inner function
+
 	host, socket, numCores, stress, _, _, err := g.selectHost(priorityList)
-	//declare a subset of the snapshot of all available nodes
-	// create a new map, containing only the subset of the nodes
-	//var winningSocketNodes map[string]*schedulernodeinfo.NodeInfo
-	// var winningSocketNodes []*v1.Node
+	klog.Infof("Host: %v is selected", host)
 
-	// for _, wn := range hosts {
-	// 	for _, n := range filteredNodes {
-	// 		if n.Name == wn {
-	// 			winningSocketNodes = append(winningSocketNodes, n)
-	// 		}
-	// 	}
-	// }
-
-	//trace.Step("Selecting host")
-	// klog.Infof("Selecting host")
-	// nodePrioritizers := []priorities.PriorityConfig{
-	// 	{
-	// 		Name:   priorities.NodeSelectionPriority,
-	// 		Map:    priorities.NodeSelectionPriorityMap,
-	// 		Weight: 100,
-	// 	},
-	// }
-	// priorityList, err = PrioritizeNodes(pod, g.nodeInfoSnapshot.NodeInfoMap, metaPrioritiesInterface, nodePrioritizers, winningSocketNodes, g.extenders)
-
-	// // The winner host
-	// host, err := g.selectHost(priorityList)
-
-	// winningSocket := priorities.Sockets[host]
-	// winningUuid := priorities.Nodes[host]
-
-	// klog.Infof("Winning node: %v, Socket %v", host, socket)
-
-	// var tmp []string
-	// var socketNodes []string
-	// for key, val := range priorities.Nodes {
-	// 	if val == winningUuid {
-	// 		tmp = append(tmp, key)
-	// 	}
-	// }
-	// for _, n := range tmp {
-	// 	if priorities.Sockets[n] == winningSocket {
-	// 		socketNodes = append(socketNodes, n)
-	// 	}
-	// }
-
-	// Add pod's information (average metrics to the winning nodes metrics) and cache them
-	//podName := pod.ObjectMeta.Name[0 : len(pod.ObjectMeta.Name)-19]
-	// var win bool
-	// for _, n := range socketNodes {
-
-	// 	if n == host {
-	// 		win = true
-	// 	} else {
-	// 		win = false
-	// 	}
-	// 	klog.Infof("Update Score for Node %v, using App: %v", n, podName)
-	// 	klog.Infof("App: %v metrics: %v", podName, priorities.Applications[podName].Metrics)
-	// 	numCores := len(priorities.Cores[n])
-	// 	customcache.LabCache.AddAppMetrics(priorities.Applications[podName].Metrics, n, numCores, win)
-	// }
-
-	// Get the number of cores of the winning socket
-	// numCores := 0
-	// for _, s := range priorities.NameToNode[host].Sockets {
-	// 	if s.Id == socket {
-	// 		numCores = len(s.Cores)
-	// 	} else {
-	// 		continue
-	// 	}
-	// }
-
-	//customcache.LabCache.AddAppMetrics(priorities.Applications[podName].Metrics, host, int32(socket), numCores)
 	var conn *grpc.ClientConn
-
 	// Send gRPC request to the MaaS component
 	conn, err = grpc.Dial("TODO"+":4444", grpc.WithInsecure())
 	if err != nil {
@@ -386,10 +313,11 @@ func (g *genericScheduler) Schedule(pod *v1.Pod, nodeLister algorithm.NodeLister
 	if err != nil {
 		log.Fatalf("Error when calling StoreInfo: %s", err)
 	}
-	log.Printf("Response from server: %s", response.Ok)
+	klog.Infof("Client: Sent the scheduling result in MaaS and reveived response: %v", response.Ok)
 
-	// Send gRPC request to the corresponding agent
-	klog.Infof("About to Send gRPC request to node: %v, to pin the app in socket: %v\n", host, socket)
+	// Send the winning socket to the winning socket's agent
+	// in order to pin the incoming pod onto the cores of this socket
+	//klog.Infof("About to Send gRPC request to node: %v, to pin the app in socket: %v\n", host, socket)
 	conn, err = grpc.Dial(priorities.NameToNode[host].IP+":4242", grpc.WithInsecure())
 	if err != nil {
 		log.Fatalf("did not connect: %s", err)
@@ -400,15 +328,13 @@ func (g *genericScheduler) Schedule(pod *v1.Pod, nodeLister algorithm.NodeLister
 		Socket: &info.SocketType{SocketId: int32(socket)},
 		Pod:    &info.PodType{PodName: pod.Name},
 	})
-
 	if err != nil {
-		log.Fatalf("Error when calling Pin: %s", err)
+		log.Fatalf("Error when calling Pin in the node agent: %s", err)
 	}
-	log.Printf("Response from server: %s", response2.Body)
+	//log.Printf("Response from server: %s", response2.Body)
+	klog.Infof("Client: Sent the winning socket in Node Agent and reveived response: %v", response2.Body)
 
-	// End of gRPC client
-
-	klog.Infof("Return (generic_scheduler.go)")
+	klog.Infof("Finished all operations. Return (generic_scheduler.go)")
 	return ScheduleResult{
 		SuggestedHost:  host,
 		EvaluatedNodes: len(filteredNodes) + len(failedPredicateMap),
@@ -436,6 +362,7 @@ func findParetoFront(priorityList schedulerapi.HostPriorityList) []int {
 	p, err := pareto.New(m)
 	if err != nil {
 		// then return the best init score
+		klog.Infof("Could not calculate pareto front")
 		return findMaxScores(priorityList)
 	}
 	return p.Exec()
@@ -464,7 +391,9 @@ func (g *genericScheduler) selectHost(priorityList schedulerapi.HostPriorityList
 		return "", -1, -1, nil, -1, -1, fmt.Errorf("empty priorityList")
 	}
 
-	maxScores := findMaxScores(priorityList)
+	//maxScores := findMaxScores(priorityList)
+	maxScores := findParetoFront(priorityList)
+	klog.Infof("The Pareto fronts are: %v", maxScores)
 	ix := int(g.lastNodeIndex % uint64(len(maxScores)))
 	g.lastNodeIndex++
 	return priorityList[maxScores[ix]].Host,

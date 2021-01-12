@@ -350,6 +350,9 @@ func customResourceScorer(nodeName string, pod *v1.Pod) (float64, int, int, *cac
 	var conn *grpc.ClientConn
 
 	// Send gRPC request to the MaaS component
+	// Send init stress, nodename and app label
+	// Receive estimated final stress and execution time
+
 	conn, err = grpc.Dial("TODO"+":4444", grpc.WithInsecure())
 	if err != nil {
 		log.Fatalf("did not connect: %s", err)
@@ -360,7 +363,7 @@ func customResourceScorer(nodeName string, pod *v1.Pod) (float64, int, int, *cac
 		AppID:    pod.Name,
 		AppLabel: pod.Labels["app"],
 		NodeName: nodeName,
-		// Architecture: node.Labels["architecture"],
+		// Architecture: node.Labels["architecture"]
 		Stress: &watchgrpc.Stress{Ipc: float32(results["ipc"]),
 			Reads:  results["mem_read"],
 			Writes: results["mem_write"],
@@ -371,11 +374,12 @@ func customResourceScorer(nodeName string, pod *v1.Pod) (float64, int, int, *cac
 	if err != nil {
 		fmt.Printf("An error occurred: %v\n", err)
 	}
-
+	klog.Infof("Custom Scoring Func / Node %v: Init Stress: %v, Reveived Time: %v, Final stress: %v", nodeName, maxRes, response.Time, response.FinalStress)
 	return maxRes, winningSocket, winningSocketLenCores, &cache.Stress{IPC: float32(results["ipc"]),
 		Reads:  results["mem_read"],
 		Writes: results["mem_write"],
-		C6:     float32(results["c6res"] * float64(winningSocketLenCores)),
-		Score:  maxRes,
+		// at this point I sent c6res * number of cores
+		C6:    float32(results["c6res"] * float64(winningSocketLenCores)),
+		Score: maxRes,
 	}, response.FinalStress.Stress, response.Time, nil
 }
