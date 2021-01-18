@@ -297,6 +297,8 @@ github.com/iwita/watchapp v0.0.0-20201221154558-68e7a437f805 h1:fRdcEi9eRZTZQxxs
 github.com/iwita/watchapp v0.0.0-20201221154558-68e7a437f805/go.mod h1:GU031/ss8ZekZvTTf/DhhsQji05NvMmm4qhRvCJd/hg=
 github.com/iwita/watchapp v0.0.0-20210104082748-dc4856d76e96 h1:1qVtkYE+eYfZqGtEFJR/uztWGfhUQv5+HV13NDu3iEk=
 github.com/iwita/watchapp v0.0.0-20210104082748-dc4856d76e96/go.mod h1:DNefKJRpFmL1tWwE86RL9BOx0QoxthxdGHUx01aR518=
+github.com/iwita/watchapp v0.0.0-20210107110845-e21b6176a540 h1:SS/tWWT4XcXJg1gy7ZKml1vnNrNk+ADA67mXNKpY3i8=
+github.com/iwita/watchapp v0.0.0-20210107110845-e21b6176a540/go.mod h1:DNefKJRpFmL1tWwE86RL9BOx0QoxthxdGHUx01aR518=
 github.com/jmespath/go-jmespath v0.0.0-20180206201540-c2b33e8439af h1:pmfjZENx5imkbgOkpRUYLnmbU7UEFbjtDA2hxJ1ichM=
 github.com/jmespath/go-jmespath v0.0.0-20180206201540-c2b33e8439af/go.mod h1:Nht3zPeWKUH0NzdCt2Blrr5ys8VGpn0CEB0cQHVjt7k=
 github.com/jonboulle/clockwork v0.0.0-20141017032234-72f9bd7c4e0c h1:XpRROA6ssPlTwJI8/pH+61uieOkcJhmAFz25cu0B94Y=

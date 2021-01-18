@@ -10,6 +10,7 @@ require (
 	bitbucket.org/bertimus9/systemstat v0.0.0-20180207000608-0eeff89b0690
 	github.com/Azure/azure-sdk-for-go v21.4.0+incompatible
 	github.com/Azure/go-autorest v11.1.2+incompatible
+	github.com/BurntSushi/toml v0.3.1 // indirect
 	github.com/GoogleCloudPlatform/k8s-cloud-provider v0.0.0-20181220005116-f8e995905100
 	github.com/JeffAshton/win_pdh v0.0.0-20161109143554-76bb4ee9f0ab
 	github.com/MakeNowJust/heredoc v0.0.0-20170808103936-bb23615498cd
@@ -91,7 +92,7 @@ require (
 	github.com/iwita/kube-scheduler v0.0.0-20200925115751-ea20621cc941
 	github.com/iwita/node-agent v0.0.0-20200929075820-8321abd74e49
 	github.com/iwita/pareto v0.0.0-20210105170838-c0a78e30a0ab
-	github.com/iwita/watchapp v0.0.0-20210104082748-dc4856d76e96
+	github.com/iwita/watchapp v0.0.0-20210107110845-e21b6176a540
 	github.com/jonboulle/clockwork v0.0.0-20141017032234-72f9bd7c4e0c
 	github.com/json-iterator/go v1.1.10
 	github.com/jstemmer/go-junit-report v0.0.0-20190106144839-af01ea7f8024
